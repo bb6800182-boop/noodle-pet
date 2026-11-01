@@ -1,0 +1,2 @@
+# cmd 批次檔一定要 CRLF，不然 cmd.exe 可能讀錯行
+*.cmd text eol=crlf

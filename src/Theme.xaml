@@ -1,0 +1,470 @@
+<!-- 共用設計 token 與控制項樣式：顏色、字級、圓角、間距一律對應專案 DESIGN.md（Linear 深色系） -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- colors -->
+  <SolidColorBrush x:Key="primary" Color="#5e6ad2"/>
+  <SolidColorBrush x:Key="on-primary" Color="#ffffff"/>
+  <SolidColorBrush x:Key="primary-hover" Color="#828fff"/>
+  <SolidColorBrush x:Key="primary-focus" Color="#5e69d1"/>
+  <SolidColorBrush x:Key="focus-ring" Color="#805e69d1"/>
+  <SolidColorBrush x:Key="ink" Color="#f7f8f8"/>
+  <SolidColorBrush x:Key="ink-muted" Color="#d0d6e0"/>
+  <SolidColorBrush x:Key="ink-subtle" Color="#8a8f98"/>
+  <SolidColorBrush x:Key="ink-tertiary" Color="#62666d"/>
+  <SolidColorBrush x:Key="canvas" Color="#010102"/>
+  <SolidColorBrush x:Key="surface-1" Color="#0f1011"/>
+  <SolidColorBrush x:Key="surface-2" Color="#141516"/>
+  <SolidColorBrush x:Key="surface-3" Color="#18191a"/>
+  <SolidColorBrush x:Key="surface-4" Color="#191a1b"/>
+  <SolidColorBrush x:Key="hairline" Color="#23252a"/>
+  <SolidColorBrush x:Key="hairline-strong" Color="#34343a"/>
+  <SolidColorBrush x:Key="hairline-tertiary" Color="#3e3e44"/>
+  <SolidColorBrush x:Key="semantic-success" Color="#27a644"/>
+  <SolidColorBrush x:Key="semantic-danger" Color="#eb5757"/>
+  <SolidColorBrush x:Key="success-tint" Color="#2627a644"/>
+  <SolidColorBrush x:Key="danger-tint" Color="#26eb5757"/>
+
+  <!-- typography -->
+  <!-- 中文介面以微軟正黑體為主：數字和中文同一套字重，不會一粗一細；純數字的計時用 Segoe UI -->
+  <FontFamily x:Key="font-text">Microsoft JhengHei UI, Segoe UI</FontFamily>
+  <FontFamily x:Key="font-latin">Segoe UI</FontFamily>
+  <FontFamily x:Key="font-mono">Cascadia Mono, Consolas, Microsoft JhengHei UI</FontFamily>
+
+  <Style x:Key="t-base" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource font-text}"/>
+    <Setter Property="Foreground" Value="{StaticResource ink}"/>
+    <Setter Property="TextWrapping" Value="Wrap"/>
+    <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
+  </Style>
+  <Style x:Key="t-headline" TargetType="TextBlock" BasedOn="{StaticResource t-base}">
+    <Setter Property="FontSize" Value="28"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="LineHeight" Value="34"/>
+  </Style>
+  <Style x:Key="t-card-title" TargetType="TextBlock" BasedOn="{StaticResource t-base}">
+    <Setter Property="FontSize" Value="22"/><Setter Property="FontWeight" Value="Medium"/><Setter Property="LineHeight" Value="28"/>
+  </Style>
+  <Style x:Key="t-subhead" TargetType="TextBlock" BasedOn="{StaticResource t-base}">
+    <Setter Property="FontSize" Value="20"/><Setter Property="LineHeight" Value="28"/>
+  </Style>
+  <Style x:Key="t-body" TargetType="TextBlock" BasedOn="{StaticResource t-base}">
+    <Setter Property="FontSize" Value="16"/><Setter Property="LineHeight" Value="24"/>
+  </Style>
+  <Style x:Key="t-body-sm" TargetType="TextBlock" BasedOn="{StaticResource t-base}">
+    <Setter Property="FontSize" Value="14"/><Setter Property="LineHeight" Value="21"/>
+  </Style>
+  <Style x:Key="t-body-sm-muted" TargetType="TextBlock" BasedOn="{StaticResource t-body-sm}">
+    <Setter Property="Foreground" Value="{StaticResource ink-muted}"/>
+  </Style>
+  <Style x:Key="t-body-sm-subtle" TargetType="TextBlock" BasedOn="{StaticResource t-body-sm}">
+    <Setter Property="Foreground" Value="{StaticResource ink-subtle}"/>
+  </Style>
+  <Style x:Key="t-caption" TargetType="TextBlock" BasedOn="{StaticResource t-base}">
+    <Setter Property="FontSize" Value="12"/><Setter Property="LineHeight" Value="17"/>
+    <Setter Property="Foreground" Value="{StaticResource ink-subtle}"/>
+  </Style>
+  <Style x:Key="t-eyebrow" TargetType="TextBlock" BasedOn="{StaticResource t-base}">
+    <Setter Property="FontSize" Value="13"/><Setter Property="FontWeight" Value="Medium"/><Setter Property="LineHeight" Value="17"/>
+    <Setter Property="Foreground" Value="{StaticResource ink-subtle}"/>
+  </Style>
+  <Style x:Key="t-mono" TargetType="TextBlock" BasedOn="{StaticResource t-base}">
+    <Setter Property="FontFamily" Value="{StaticResource font-mono}"/>
+    <Setter Property="FontSize" Value="13"/><Setter Property="LineHeight" Value="19"/>
+    <Setter Property="TextWrapping" Value="NoWrap"/>
+  </Style>
+
+  <!-- 鍵盤焦點：2px primary-focus 50% 外框 -->
+  <Style x:Key="focus-visual">
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Rectangle Margin="-3" RadiusX="10" RadiusY="10" Stroke="{StaticResource focus-ring}" StrokeThickness="2" SnapsToDevicePixels="True"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="focus-visual-pill">
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Rectangle Margin="-3" RadiusX="14" RadiusY="14" Stroke="{StaticResource focus-ring}" StrokeThickness="2" SnapsToDevicePixels="True"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- buttons：rounded.md 8、padding 8×14、typography.button 14/500 -->
+  <ControlTemplate x:Key="button-shape" TargetType="Button">
+    <Border x:Name="bg" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+      <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="False"/>
+    </Border>
+    <ControlTemplate.Triggers>
+      <Trigger Property="IsEnabled" Value="False"><Setter TargetName="bg" Property="Opacity" Value="0.45"/></Trigger>
+    </ControlTemplate.Triggers>
+  </ControlTemplate>
+  <Style x:Key="button-base" TargetType="Button">
+    <Setter Property="Template" Value="{StaticResource button-shape}"/>
+    <Setter Property="FocusVisualStyle" Value="{StaticResource focus-visual}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="FontFamily" Value="{StaticResource font-text}"/>
+    <Setter Property="FontSize" Value="14"/>
+    <Setter Property="FontWeight" Value="Medium"/>
+    <Setter Property="Padding" Value="14,8"/>
+    <Setter Property="MinHeight" Value="36"/>
+    <Setter Property="BorderThickness" Value="1"/>
+  </Style>
+  <Style x:Key="button-primary" TargetType="Button" BasedOn="{StaticResource button-base}">
+    <Setter Property="Foreground" Value="{StaticResource on-primary}"/>
+    <Setter Property="Background" Value="{StaticResource primary}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource primary}"/>
+    <Style.Triggers>
+      <Trigger Property="IsMouseOver" Value="True">
+        <Setter Property="Background" Value="{StaticResource primary-hover}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource primary-hover}"/>
+      </Trigger>
+      <Trigger Property="IsPressed" Value="True">
+        <Setter Property="Background" Value="{StaticResource primary-focus}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource primary-focus}"/>
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+  <Style x:Key="button-secondary" TargetType="Button" BasedOn="{StaticResource button-base}">
+    <Setter Property="Foreground" Value="{StaticResource ink}"/>
+    <Setter Property="Background" Value="{StaticResource surface-1}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource hairline-strong}"/>
+    <Style.Triggers>
+      <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{StaticResource surface-3}"/></Trigger>
+      <Trigger Property="IsPressed" Value="True"><Setter Property="Background" Value="{StaticResource surface-4}"/></Trigger>
+    </Style.Triggers>
+  </Style>
+  <Style x:Key="button-danger" TargetType="Button" BasedOn="{StaticResource button-secondary}">
+    <Setter Property="Foreground" Value="{StaticResource semantic-danger}"/>
+  </Style>
+  <Style x:Key="button-tertiary" TargetType="Button" BasedOn="{StaticResource button-base}">
+    <Setter Property="Foreground" Value="{StaticResource ink-subtle}"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="Padding" Value="10,8"/>
+    <Style.Triggers>
+      <Trigger Property="IsMouseOver" Value="True">
+        <Setter Property="Foreground" Value="{StaticResource ink}"/>
+        <Setter Property="Background" Value="{StaticResource surface-3}"/>
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+
+  <!-- 開關：關閉是 ink-subtle 外框（對比夠），開啟填 primary -->
+  <Style x:Key="toggle" TargetType="CheckBox">
+    <Setter Property="FocusVisualStyle" Value="{StaticResource focus-visual-pill}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="CheckBox">
+          <Border x:Name="track" Width="40" Height="22" CornerRadius="11" Background="Transparent"
+                  BorderBrush="{StaticResource ink-subtle}" BorderThickness="1" SnapsToDevicePixels="True">
+            <Ellipse x:Name="knob" Width="12" Height="12" Margin="4,0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                     Fill="{StaticResource ink-subtle}"/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="track" Property="BorderBrush" Value="{StaticResource ink}"/>
+              <Setter TargetName="knob" Property="Fill" Value="{StaticResource ink}"/>
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="track" Property="Background" Value="{StaticResource primary}"/>
+              <Setter TargetName="track" Property="BorderBrush" Value="{StaticResource primary}"/>
+              <Setter TargetName="knob" Property="Fill" Value="{StaticResource on-primary}"/>
+              <Setter TargetName="knob" Property="Width" Value="14"/>
+              <Setter TargetName="knob" Property="Height" Value="14"/>
+              <Setter TargetName="knob" Property="HorizontalAlignment" Value="Right"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="track" Property="Opacity" Value="0.45"/></Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- 勾選框 -->
+  <Style x:Key="check" TargetType="CheckBox">
+    <Setter Property="FocusVisualStyle" Value="{StaticResource focus-visual}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="CheckBox">
+          <Border x:Name="box" Width="20" Height="20" CornerRadius="4" Background="Transparent"
+                  BorderBrush="{StaticResource ink-subtle}" BorderThickness="1" SnapsToDevicePixels="True">
+            <Path x:Name="mark" Data="M5,10.2 L8.4,13.4 L15,6.6" Stroke="{StaticResource on-primary}" StrokeThickness="2"
+                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Visibility="Collapsed" Margin="-1"/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="box" Property="BorderBrush" Value="{StaticResource ink}"/></Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="box" Property="Background" Value="{StaticResource primary}"/>
+              <Setter TargetName="box" Property="BorderBrush" Value="{StaticResource primary}"/>
+              <Setter TargetName="mark" Property="Visibility" Value="Visible"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="box" Property="Opacity" Value="0.45"/></Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- 選項卡片（單選）：rounded.lg 12，選到的往上一層 surface -->
+  <Style x:Key="radio-card" TargetType="RadioButton">
+    <Setter Property="FocusVisualStyle" Value="{StaticResource focus-visual}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="Foreground" Value="{StaticResource ink}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RadioButton">
+          <Border x:Name="bd" Background="{StaticResource surface-1}" BorderBrush="{StaticResource hairline}" BorderThickness="1"
+                  CornerRadius="12" Padding="14,12" SnapsToDevicePixels="True">
+            <Grid>
+              <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions>
+              <Grid Width="18" Height="18" Margin="0,2,12,0" VerticalAlignment="Top">
+                <Ellipse x:Name="ring" Stroke="{StaticResource ink-subtle}" StrokeThickness="1.5"/>
+                <Ellipse x:Name="dot" Width="8" Height="8" Fill="{StaticResource primary}" Visibility="Collapsed"/>
+              </Grid>
+              <ContentPresenter Grid.Column="1" RecognizesAccessKey="False"/>
+            </Grid>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="bd" Property="Background" Value="{StaticResource surface-2}"/></Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="bd" Property="Background" Value="{StaticResource surface-2}"/>
+              <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource hairline-strong}"/>
+              <Setter TargetName="ring" Property="Stroke" Value="{StaticResource primary}"/>
+              <Setter TargetName="dot" Property="Visibility" Value="Visible"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- 角色圖卡（單選，沒有圓點；選到的加 primary 外框） -->
+  <Style x:Key="tile" TargetType="RadioButton">
+    <Setter Property="FocusVisualStyle" Value="{StaticResource focus-visual}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="Foreground" Value="{StaticResource ink}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RadioButton">
+          <Border x:Name="bd" Background="{StaticResource surface-1}" BorderBrush="{StaticResource hairline}" BorderThickness="1"
+                  CornerRadius="12" Padding="8,12" SnapsToDevicePixels="True">
+            <ContentPresenter RecognizesAccessKey="False"/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="bd" Property="Background" Value="{StaticResource surface-2}"/></Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="bd" Property="Background" Value="{StaticResource surface-2}"/>
+              <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource primary}"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- 分段選擇（pricing-tab：預設 ink-subtle，選到 surface-2＋ink，rounded.pill） -->
+  <Style x:Key="segment" TargetType="RadioButton">
+    <Setter Property="FocusVisualStyle" Value="{StaticResource focus-visual-pill}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="FontFamily" Value="{StaticResource font-text}"/>
+    <Setter Property="FontSize" Value="14"/>
+    <Setter Property="FontWeight" Value="Medium"/>
+    <Setter Property="Foreground" Value="{StaticResource ink-subtle}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RadioButton">
+          <Border x:Name="bd" Background="Transparent" BorderBrush="Transparent" BorderThickness="1" CornerRadius="9999" Padding="14,6" MinHeight="32">
+            <ContentPresenter VerticalAlignment="Center" RecognizesAccessKey="False"/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Foreground" Value="{StaticResource ink}"/></Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="bd" Property="Background" Value="{StaticResource surface-3}"/>
+              <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource hairline-strong}"/>
+              <Setter Property="Foreground" Value="{StaticResource ink}"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- 側邊選單 -->
+  <Style x:Key="nav-item" TargetType="RadioButton">
+    <Setter Property="FocusVisualStyle" Value="{StaticResource focus-visual}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="FontFamily" Value="{StaticResource font-text}"/>
+    <Setter Property="FontSize" Value="14"/>
+    <Setter Property="Foreground" Value="{StaticResource ink-subtle}"/>
+    <Setter Property="Margin" Value="0,0,0,2"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RadioButton">
+          <Border x:Name="bd" Background="Transparent" CornerRadius="6" Padding="12,8">
+            <ContentPresenter RecognizesAccessKey="False"/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="bd" Property="Background" Value="{StaticResource surface-2}"/>
+              <Setter Property="Foreground" Value="{StaticResource ink}"/>
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="bd" Property="Background" Value="{StaticResource surface-3}"/>
+              <Setter Property="Foreground" Value="{StaticResource ink}"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- 輸入框：rounded.md、padding 8×12、聚焦 primary-focus、錯誤 semantic-danger（Tag="error"） -->
+  <Style x:Key="text-input" TargetType="TextBox">
+    <Setter Property="FontFamily" Value="{StaticResource font-text}"/>
+    <Setter Property="FontSize" Value="14"/>
+    <Setter Property="Foreground" Value="{StaticResource ink}"/>
+    <Setter Property="CaretBrush" Value="{StaticResource ink}"/>
+    <Setter Property="SelectionBrush" Value="{StaticResource primary}"/>
+    <Setter Property="Background" Value="{StaticResource canvas}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource hairline-strong}"/>
+    <Setter Property="Padding" Value="12,8"/>
+    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+    <Setter Property="ContextMenuService.IsEnabled" Value="False"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="TextBox">
+          <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1"
+                  CornerRadius="8" SnapsToDevicePixels="True">
+            <!-- TextBox 會自己把 Padding 套在內容上，這裡不要再加一次 -->
+            <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"
+                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource hairline-tertiary}"/></Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource primary-focus}"/></Trigger>
+            <Trigger Property="Tag" Value="error"><Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource semantic-danger}"/></Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- 滑桿 -->
+  <Style x:Key="slider-fill" TargetType="RepeatButton">
+    <Setter Property="Focusable" Value="False"/><Setter Property="IsTabStop" Value="False"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RepeatButton">
+          <Grid Background="Transparent"><Border Height="4" CornerRadius="2" Background="{StaticResource primary}" VerticalAlignment="Center"/></Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="slider-rest" TargetType="RepeatButton">
+    <Setter Property="Focusable" Value="False"/><Setter Property="IsTabStop" Value="False"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RepeatButton"><Grid Background="Transparent"/></ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="slider-thumb" TargetType="Thumb">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Thumb">
+          <Ellipse x:Name="e" Width="16" Height="16" Fill="{StaticResource ink}" Stroke="{StaticResource canvas}" StrokeThickness="2"/>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="e" Property="Fill" Value="{StaticResource on-primary}"/></Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="slider" TargetType="Slider">
+    <Setter Property="FocusVisualStyle" Value="{StaticResource focus-visual}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="IsMoveToPointEnabled" Value="True"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Slider">
+          <Grid Height="24" Background="Transparent">
+            <Border Height="4" CornerRadius="2" Background="{StaticResource hairline-strong}" VerticalAlignment="Center"/>
+            <Track x:Name="PART_Track">
+              <Track.DecreaseRepeatButton><RepeatButton Command="Slider.DecreaseLarge" Style="{StaticResource slider-fill}"/></Track.DecreaseRepeatButton>
+              <Track.IncreaseRepeatButton><RepeatButton Command="Slider.IncreaseLarge" Style="{StaticResource slider-rest}"/></Track.IncreaseRepeatButton>
+              <Track.Thumb><Thumb Style="{StaticResource slider-thumb}"/></Track.Thumb>
+            </Track>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- 細捲軸（全程式共用） -->
+  <Style x:Key="scroll-page" TargetType="RepeatButton">
+    <Setter Property="Focusable" Value="False"/><Setter Property="IsTabStop" Value="False"/>
+    <Setter Property="Template">
+      <Setter.Value><ControlTemplate TargetType="RepeatButton"><Grid Background="Transparent"/></ControlTemplate></Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="scroll-thumb" TargetType="Thumb">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Thumb">
+          <Border x:Name="b" CornerRadius="4" Margin="2" Background="{StaticResource hairline-tertiary}"/>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="{StaticResource ink-tertiary}"/></Trigger>
+            <Trigger Property="IsDragging" Value="True"><Setter TargetName="b" Property="Background" Value="{StaticResource ink-subtle}"/></Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style TargetType="ScrollBar">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Width" Value="10"/>
+    <Setter Property="MinWidth" Value="10"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ScrollBar">
+          <Grid Background="Transparent">
+            <Track x:Name="PART_Track" IsDirectionReversed="True">
+              <Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageUpCommand" Style="{StaticResource scroll-page}"/></Track.DecreaseRepeatButton>
+              <Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageDownCommand" Style="{StaticResource scroll-page}"/></Track.IncreaseRepeatButton>
+              <Track.Thumb><Thumb Style="{StaticResource scroll-thumb}"/></Track.Thumb>
+            </Track>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Style.Triggers>
+      <Trigger Property="Orientation" Value="Horizontal">
+        <Setter Property="Width" Value="Auto"/>
+        <Setter Property="MinWidth" Value="0"/>
+        <Setter Property="Height" Value="10"/>
+        <Setter Property="MinHeight" Value="10"/>
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="ScrollBar">
+              <Grid Background="Transparent">
+                <Track x:Name="PART_Track">
+                  <Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageLeftCommand" Style="{StaticResource scroll-page}"/></Track.DecreaseRepeatButton>
+                  <Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageRightCommand" Style="{StaticResource scroll-page}"/></Track.IncreaseRepeatButton>
+                  <Track.Thumb><Thumb Style="{StaticResource scroll-thumb}"/></Track.Thumb>
+                </Track>
+              </Grid>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+</ResourceDictionary>

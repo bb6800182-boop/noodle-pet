@@ -1,0 +1,59 @@
+<!-- 桌寵的對話泡泡。PeekBack 在卡片後面（頭被卡片擋住），PeekFront 在卡片前面（手抓著卡片上緣） -->
+<Grid xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Width="300" TextElement.FontFamily="{StaticResource font-text}">
+  <Canvas x:Name="PeekBackLayer" IsHitTestVisible="False" ClipToBounds="True">
+    <Image x:Name="PeekBack" Stretch="Fill" Visibility="Hidden"/>
+  </Canvas>
+  <StackPanel x:Name="Stack">
+    <Grid x:Name="TailTop" Height="9" Width="16" HorizontalAlignment="Left" Margin="0,0,0,-1" Visibility="Collapsed">
+      <Polygon Points="0,9 8,1 16,9" Fill="{StaticResource surface-1}"/>
+      <Polyline Points="0,9 8,1 16,9" Stroke="{StaticResource hairline-strong}" StrokeThickness="1"/>
+    </Grid>
+    <Border x:Name="Card" Background="{StaticResource surface-1}" BorderBrush="{StaticResource hairline-strong}"
+            BorderThickness="1" CornerRadius="12" Padding="16">
+      <StackPanel x:Name="Content">
+        <Grid x:Name="Header" Margin="0,0,0,4">
+          <TextBlock x:Name="Eyebrow" Style="{StaticResource t-eyebrow}" Margin="0,0,48,0"/>
+          <TextBlock x:Name="Meta" Style="{StaticResource t-caption}" HorizontalAlignment="Right" TextWrapping="NoWrap"/>
+        </Grid>
+        <TextBlock x:Name="Title" Style="{StaticResource t-card-title}"/>
+        <TextBlock x:Name="Body" Style="{StaticResource t-body-sm-muted}" Margin="0,4,0,0"/>
+        <TextBlock x:Name="Spec" Style="{StaticResource t-caption}" Margin="0,8,0,0"/>
+        <Grid x:Name="TimerRow" Margin="0,12,0,0">
+          <TextBlock x:Name="TimerSpec" Style="{StaticResource t-body-sm-subtle}" VerticalAlignment="Center" Margin="0,0,72,0"/>
+          <TextBlock x:Name="Clock" Style="{StaticResource t-headline}" FontFamily="{StaticResource font-latin}" HorizontalAlignment="Right"
+                     TextWrapping="NoWrap" Typography.NumeralAlignment="Tabular"/>
+        </Grid>
+        <Grid x:Name="BarTrack" Height="4" Margin="0,8,0,0">
+          <Border Background="{StaticResource hairline-strong}" CornerRadius="2"/>
+          <Border x:Name="Bar" Background="{StaticResource primary}" CornerRadius="2" HorizontalAlignment="Left" Width="0"/>
+        </Grid>
+        <Grid x:Name="NoteRow" Margin="0,12,0,0">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions>
+          <Path x:Name="NoteIcon" Width="16" Height="16" Margin="0,1,8,0" VerticalAlignment="Top" Stretch="None"
+                Stroke="{StaticResource semantic-success}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+          <TextBlock x:Name="Note" Grid.Column="1" Style="{StaticResource t-body-sm}" Foreground="{StaticResource semantic-success}"/>
+        </Grid>
+        <StackPanel x:Name="Pick" Margin="0,12,0,0"/>
+        <StackPanel x:Name="Setup" Margin="0,12,0,0"/>
+        <StackPanel x:Name="Steps" Margin="0,12,0,0"/>
+        <Grid x:Name="Footer" Margin="0,16,0,0">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+            <Button x:Name="Primary" Style="{StaticResource button-primary}" Margin="0,0,8,0" Focusable="False"/>
+            <Button x:Name="Secondary" Style="{StaticResource button-secondary}" Focusable="False"/>
+          </StackPanel>
+          <Button x:Name="Link" Style="{StaticResource button-tertiary}" HorizontalAlignment="Right" Focusable="False"/>
+          <StackPanel x:Name="Dots" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        </Grid>
+      </StackPanel>
+    </Border>
+    <Grid x:Name="TailBottom" Height="9" Width="16" HorizontalAlignment="Left" Margin="0,-1,0,0">
+      <Polygon Points="0,0 8,8 16,0" Fill="{StaticResource surface-1}"/>
+      <Polyline Points="0,0 8,8 16,0" Stroke="{StaticResource hairline-strong}" StrokeThickness="1"/>
+    </Grid>
+  </StackPanel>
+  <Canvas x:Name="PeekFrontLayer" IsHitTestVisible="False">
+    <Image x:Name="PeekFront" Stretch="Fill" Visibility="Hidden"/>
+  </Canvas>
+</Grid>
