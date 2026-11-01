@@ -43,7 +43,7 @@ namespace NoodlePet
         IntPtr hwnd;
 
         public static bool Headless;               // 只給截圖工具用：不真的顯示視窗
-        public string Kind { get; private set; }   // null = 沒開；hello／announce／nudge／stretch／done／bye／intro
+        public string Kind { get; private set; }   // null = 沒開；hello／announce／nudge／stretch／done／bye／intro／water／say
         public event Action BubbleClosed;
 
         public BubbleWindow(Brain b, PetWindow p)
@@ -402,11 +402,39 @@ namespace NoodlePet
 
         public void ShowDone(int count)
         {
+            ShowDone("做得好！", count <= 1 ? "今天第一組完成" : "今天第 " + count + " 組了，繼續保持");
+        }
+
+        public void ShowDone(string head, string line)
+        {
             Reset();
-            Set(title, "做得好！");
-            SetNote(count <= 1 ? "今天第一組完成" : "今天第 " + count + " 組了，繼續保持", "check");
+            Set(title, head);
+            SetNote(line, "check");
             Open("done", 0, null);
             After(1800, brain.DoneShown);
+        }
+
+        // 喝水：桌寵拿杯水在喝；按「喝了」算一杯
+        public void ShowWater(int cup)
+        {
+            Reset();
+            SetHeader("喝水時間", cup > 0 ? "今天第 " + cup + " 杯" : "示範");
+            Set(title, "喝口水吧！");
+            Set(body, "起來倒杯水，順便走一走、看看遠方。");
+            SetButtons("喝了", brain.WaterDone, "晚點", brain.WaterSnooze);
+            Open("water", brain.Cfg.bubbleSeconds, brain.WaterIgnore);
+        }
+
+        // 桌寵說話：自訂提醒、行事曆活動。不自動收起，按「知道了」才收
+        public void ShowSay(Say s, DateTime now, int more)
+        {
+            Reset();
+            var when = s.When(now);
+            SetHeader(s.Eyebrow, more > 0 ? when + " · 還有 " + more + " 則" : when);
+            Set(title, s.Title);
+            Set(body, s.Detail());
+            SetButtons("知道了", brain.SayDone, "晚點", brain.SaySnooze);
+            Open("say", 0, null);
         }
 
         public void ShowBye(int minutes)

@@ -297,6 +297,37 @@
     </Setter>
   </Style>
 
+  <!-- 多選小膠囊（例：星期幾）：未選 hairline-strong 框；選中 primary 底、on-primary 字（同主要按鈕，對比過 AA） -->
+  <Style x:Key="chip" TargetType="CheckBox">
+    <Setter Property="FocusVisualStyle" Value="{StaticResource focus-visual-pill}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="FontFamily" Value="{StaticResource font-text}"/>
+    <Setter Property="FontSize" Value="14"/>
+    <Setter Property="FontWeight" Value="Medium"/>
+    <Setter Property="Foreground" Value="{StaticResource ink-subtle}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="CheckBox">
+          <Border x:Name="bd" Background="Transparent" BorderBrush="{StaticResource hairline-strong}" BorderThickness="1"
+                  CornerRadius="9999" MinWidth="36" MinHeight="32" Padding="10,4" SnapsToDevicePixels="True">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="False"/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter Property="Foreground" Value="{StaticResource ink}"/>
+              <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource hairline-tertiary}"/>
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="bd" Property="Background" Value="{StaticResource primary}"/>
+              <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource primary}"/>
+              <Setter Property="Foreground" Value="{StaticResource on-primary}"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- 側邊選單 -->
   <Style x:Key="nav-item" TargetType="RadioButton">
     <Setter Property="FocusVisualStyle" Value="{StaticResource focus-visual}"/>

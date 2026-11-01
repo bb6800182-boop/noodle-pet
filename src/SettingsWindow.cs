@@ -14,8 +14,8 @@ using System.Windows.Threading;
 
 namespace NoodlePet
 {
-    // 設定視窗：左邊分類、右邊內容；改了就自動存檔並立即套用
-    public class SettingsWindow : Window
+    // 設定視窗：左邊分類、右邊內容；改了就自動存檔並立即套用（喝水、自訂提醒、Google 月曆在 SettingsMore.cs）
+    public partial class SettingsWindow : Window
     {
         readonly Brain brain;
         readonly Dictionary<string, FrameworkElement> sections = new Dictionary<string, FrameworkElement>();
@@ -85,9 +85,12 @@ namespace NoodlePet
             grid.Children.Add(scroller);
             Content = grid;
 
-            AddSection(navList, "remind", "提醒", BuildRemind());
-            AddSection(navList, "pet", "桌寵", BuildPet());
+            AddSection(navList, "remind", "伸展提醒", BuildRemind());
             AddSection(navList, "moves", "伸展動作", BuildMoves());
+            AddSection(navList, "water", "喝水", BuildWater());
+            AddSection(navList, "reminders", "自訂提醒", BuildReminders());
+            AddSection(navList, "calendar", "Google 月曆", BuildCalendar());
+            AddSection(navList, "pet", "桌寵", BuildPet());
             AddSection(navList, "quiet", "勿擾", BuildQuiet());
             AddSection(navList, "claude", "Claude Code", BuildClaude());
             AddSection(navList, "general", "一般", BuildGeneral());
@@ -95,7 +98,7 @@ namespace NoodlePet
             savedTimer.Tick += (s, e) => { savedTimer.Stop(); savedNote.Text = "改了就會自動儲存"; };
             SourceInitialized += (s, e) => Native.DarkTitleBar(new WindowInteropHelper(this).Handle);
             PreviewKeyDown += (s, e) => { if (e.Key == Key.Escape) Close(); };
-            Closed += (s, e) => { foreach (var p in players) p.Stop(); navPlayer.Stop(); };
+            Closed += (s, e) => { foreach (var p in players) p.Stop(); navPlayer.Stop(); if (waterPlayer != null) waterPlayer.Stop(); };
             Reload();
             Go("remind");
             Loaded += (s, e) => nav["remind"].Focus();
@@ -129,6 +132,8 @@ namespace NoodlePet
             if (nav[id].IsChecked != true) nav[id].IsChecked = true;
             scroller.ScrollToTop();
             if (id == "claude") RefreshClaude();
+            if (id == "calendar") RefreshCalendar();
+            if (id == "reminders") FillReminders();   // 「下次提醒」的時間是當下算的
         }
 
         static StackPanel Section(string title, string desc, params UIElement[] children)
@@ -305,7 +310,7 @@ namespace NoodlePet
         {
             var c = brain.Cfg;
             TextBlock e1 = ErrorText(), e2 = ErrorText(), e3 = ErrorText(), e4 = ErrorText();
-            return Section("提醒", "坐多久叫你、叫了沒理怎麼辦。",
+            return Section("伸展提醒", "坐多久叫你起來伸展、叫了沒理怎麼辦。",
                 Group(
                     Row("連續使用多久提醒一次", "一直在用電腦才會累計，離開座位就重新計算。",
                         Number(() => brain.Cfg.intervalMinutes, v => { brain.Cfg.intervalMinutes = v; Save(); }, 5, () => 240, "分鐘", e1, "提醒間隔（分鐘）"), e1),
@@ -490,7 +495,7 @@ namespace NoodlePet
                     Row("全螢幕時躲起來", "看影片、簡報或玩遊戲時，桌寵和提醒都先收起來。",
                         Toggle(() => brain.Cfg.hideInFullscreen, v => { brain.Cfg.hideInFullscreen = v; Save(); }, "全螢幕時躲起來")),
                     quiet),
-                T("行事曆忙碌時不打擾目前沒有支援（Noodle 用的是 macOS 行事曆）。", "t-caption", new Thickness(0, 12, 0, 0)));
+                T("開會時不打擾：在「Google 月曆」設定。這一頁和暫停提醒只管伸展、喝水；自訂提醒和行事曆提醒照常出現。", "t-caption", new Thickness(0, 12, 0, 0)));
         }
 
         TextBox TimeBox(Func<string> get, Action<string> set, TextBlock error, string name)
@@ -634,7 +639,7 @@ namespace NoodlePet
             loading = true;
             try { foreach (var r in refreshers.ToList()) r(); }
             finally { loading = false; }
-            todayText.Text = "今天完成 " + brain.DoneToday + " 組";
+            todayText.Text = brain.TodayLine();
             if (navSprites == null || navSprites.Character != brain.Cfg.character) navSprites = new Sprites(brain.Cfg.character, 40);
             navPlayer.Play(navSprites, "idle");
             if (sections.ContainsKey("claude") && sections["claude"].Visibility == Visibility.Visible) RefreshClaude();

@@ -1,6 +1,8 @@
 // render-sprites.mjs: render Noodle's SVG figures (SMIL animation) frame by frame into transparent PNG sprite sheets
-// Usage: node render-sprites.mjs <browser exe> <figures folder> <output folder>
+// Usage: node render-sprites.mjs <browser exe> <figures folder> <output folder> [characters|*] [poses]
 //   figures folder layout: <character>/<pose>.svg (as in assets/figures)
+//   characters: comma list to render only some characters ("*" = all)
+//   poses: comma list to re-render only some poses; they are merged into the existing sprites.json, icons are left alone
 // No npm packages needed: talks to Edge/Chrome over the DevTools Protocol using Node's built-in WebSocket.
 // Each frame is rendered alone in the same 120x120 viewport, so identical poses produce identical bytes;
 // consecutive identical frames are merged into one frame with a longer duration (idle is mostly still, so it barely uses CPU).
@@ -20,6 +22,7 @@ const CHARACTERS = ['rigatoni', 'spaghetti', 'penne', 'lasagna', 'sprout'];
 const POSES = {                                            // name: fps (loop length = the longest dur in the SVG)
   idle: 12, walk: 20, wave: 15, hang: 15,
   'chin-tuck': 15, doorway: 15, scap: 15, 't-ext': 15, 'hip-flexor': 15, 'neck-side': 15, 'calf-raise': 15,
+  drink: 15,                                               // 喝水（tools/make-drink.mjs 產生，不是 Noodle 原有的）
 };
 // Sprout's idle has a 3.2s sway and a 4.2s blink: 12.8s loops the sway exactly, and the blink being off by 0.2s is invisible
 const LOOP_OVERRIDE = { 'sprout/idle': 12.8 };
@@ -76,7 +79,8 @@ const run = async (expression) => {
   return r.result.value;
 };
 await openPage();
-const only = process.argv[5] ? process.argv[5].split(',') : null;   // optional: render only these characters
+const only = process.argv[5] && process.argv[5] !== '*' ? process.argv[5].split(',') : null;   // optional: render only these characters
+const onlyPoses = process.argv[6] ? process.argv[6].split(',') : null;                         // optional: re-render only these poses
 
 async function load(svg, cell, pad, scale, css = '') {
   await page('Emulation.setDeviceMetricsOverride', { width: cell, height: cell, deviceScaleFactor: scale, mobile: false });
@@ -148,9 +152,13 @@ try {
     const dir = join(outDir, 'sprites', ch);
     mkdirSync(dir, { recursive: true });
     const svgOf = (pose) => readFileSync(join(figDir, ch, `${pose}.svg`), 'utf8');
-    const manifest = { cell: CELL, scale: SCALE, cols: COLS, poses: {} };
-    const jobs = [...Object.entries(POSES).map(([p, fps]) => [p, p, LOOP_OVERRIDE[`${ch}/${p}`] || loopOf(svgOf(p)), fps, '']),
-      ...Object.entries(STILLS).map(([p, [src, css]]) => [p, src, 1, 1, css])];
+    const manifestFile = join(dir, 'sprites.json');
+    const manifest = onlyPoses && existsSync(manifestFile) ? JSON.parse(readFileSync(manifestFile, 'utf8'))
+      : { cell: CELL, scale: SCALE, cols: COLS, poses: {} };
+    const jobs = [...Object.entries(POSES).map(([p, fps]) => [p, p, fps, '']),
+      ...Object.entries(STILLS).map(([p, [src, css]]) => [p, src, 1, css])]
+      .filter(([name]) => !onlyPoses || onlyPoses.includes(name))
+      .map(([name, src, fps, css]) => [name, src, css ? 1 : LOOP_OVERRIDE[`${ch}/${name}`] || loopOf(svgOf(src)), fps, css]);
     for (const [name, src, dur, fps, css] of jobs) {
       let r;
       for (let attempt = 1; !r; attempt++) {
@@ -164,15 +172,17 @@ try {
       writeFileSync(join(dir, `${name}.png`), r.png);
       manifest.poses[name] = { frames: r.frames, seq: r.seq };
     }
-    writeFileSync(join(dir, 'sprites.json'), JSON.stringify(manifest));
-    writeFileSync(join(outDir, `tray-${ch}.png`), await icon(svgOf('wave'), 64));
-    const counts = Object.entries(manifest.poses).map(([p, v]) => `${p} ${v.frames}`).join(', ');
+    writeFileSync(manifestFile, JSON.stringify(manifest));
+    if (!onlyPoses) writeFileSync(join(outDir, `tray-${ch}.png`), await icon(svgOf('wave'), 64));
+    const counts = jobs.map(([p]) => `${p} ${manifest.poses[p].frames}`).join(', ');
     console.log(`${ch}: ${counts}`);
   }
-  const wave = readFileSync(join(figDir, 'rigatoni', 'wave.svg'), 'utf8');
-  const icons = [];
-  for (const size of [256, 64, 48, 32, 16]) icons.push({ size, buf: await icon(wave, size) });
-  writeFileSync(join(outDir, 'icon.ico'), ico(icons));
+  if (!onlyPoses) {
+    const wave = readFileSync(join(figDir, 'rigatoni', 'wave.svg'), 'utf8');
+    const icons = [];
+    for (const size of [256, 64, 48, 32, 16]) icons.push({ size, buf: await icon(wave, size) });
+    writeFileSync(join(outDir, 'icon.ico'), ico(icons));
+  }
   console.log(`done in ${Math.round((Date.now() - t0) / 1000)}s`);
 } finally {
   ws.close();

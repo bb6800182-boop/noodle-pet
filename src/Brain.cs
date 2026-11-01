@@ -18,7 +18,50 @@ namespace NoodlePet
         public string tip { get; set; }
     }
 
-    public enum Phase { Idle, Intro, Nudge, Stretch }
+    public enum Phase { Idle, Intro, Nudge, Stretch, Water, Say }
+
+    // 桌寵要說的話：自訂提醒、行事曆活動（不做動作，只有對話泡泡）
+    public class Say
+    {
+        public string Key, Kind, Title, Place;   // Kind：custom／event／demo
+        public DateTime Due;                     // 什麼時候說（「晚點」會往後延）
+        public DateTime At;                      // 自訂提醒原定的時間／活動開始時間
+        public DateTime End;                     // 活動結束時間
+        public bool IsEvent;
+
+        public static Say Custom(Reminder r, DateTime at)
+        {
+            return new Say { Key = "r|" + r.id + "|" + at.Ticks, Kind = "custom", Title = r.text, Due = at, At = at };
+        }
+
+        public static Say Event(CalEvent e)
+        {
+            return new Say { Key = "e|" + e.Key, Kind = "event", IsEvent = true, Title = string.IsNullOrEmpty(e.Title) ? "（沒有標題的活動）" : e.Title,
+                Place = e.Location, Due = DateTime.Now, At = e.Start, End = e.End };
+        }
+
+        public string Eyebrow { get { return IsEvent ? "行事曆" : "提醒"; } }
+
+        // 說的當下才算「幾分鐘後開始」「晚了多久」
+        public string When(DateTime now)
+        {
+            if (IsEvent)
+            {
+                double m = (At - now).TotalMinutes;
+                if (m >= 0.5) return Math.Ceiling(m) + " 分鐘後開始";
+                if (m > -1) return "現在開始";
+                return "已經開始 " + Math.Floor(-m) + " 分鐘";
+            }
+            return now - At > TimeSpan.FromMinutes(2) ? "原定 " + At.ToString("HH:mm") : At.ToString("HH:mm");
+        }
+
+        public string Detail()
+        {
+            if (!IsEvent) return null;
+            var span = At.ToString("HH:mm") + "–" + End.ToString("HH:mm");
+            return string.IsNullOrEmpty(Place) ? span : span + " · " + Place;
+        }
+    }
 
     // 提醒邏輯：累計連續使用時間、決定什麼時候叫你、記錄結果；桌寵、泡泡、系統匣都由這裡指揮
     public class Brain
@@ -31,7 +74,9 @@ namespace NoodlePet
         public Phase Phase = Phase.Idle;
         public Exercise Current;
         public double ActiveSeconds;
-        public int DoneToday;
+        public double WaterSeconds;   // 上次喝水後累計用電腦的時間（離開座位不歸零：離開不代表喝過水）
+        public int DoneToday, WaterToday;
+        public readonly GoogleCalendar Calendar = new GoogleCalendar();
         public PetWindow Pet;
         public BubbleWindow Bubble;
         // 示範選單（給錄影、試看用）：倒數秒數、計時縮成 5 秒、3 秒就探頭；示範不記錄、不影響輪替與計時
@@ -40,6 +85,8 @@ namespace NoodlePet
 
         readonly DispatcherTimer timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
         readonly Dictionary<string, DateTime> claudeBusy = new Dictionary<string, DateTime>();
+        readonly List<Say> sayQueue = new List<Say>();
+        Say saying;
         Tray tray;
         SettingsWindow settings;
         HookServer hooks;
@@ -54,7 +101,9 @@ namespace NoodlePet
             Store = store;
             All = Res.Json<List<Exercise>>("exercises.json");
             DoneToday = store.DoneToday();
+            WaterToday = store.WaterToday();
             timer.Tick += (s, e) => Tick();
+            Calendar.Changed += () => { if (settings != null) settings.CalendarChanged(); };
         }
 
         public Config Cfg { get { return Store.Config; } }
@@ -107,37 +156,56 @@ namespace NoodlePet
             var now = DateTime.Now;
             double dt = (now - lastTick).TotalSeconds;
             lastTick = now;
-            if (now.Date != today) { today = now.Date; DoneToday = Store.DoneToday(); }
+            if (now.Date != today) { today = now.Date; DoneToday = Store.DoneToday(); WaterToday = Store.WaterToday(); }
             if (Store.ReloadConfig(false))
             {
                 ApplyConfig();
                 if (settings != null) settings.Reload();
                 if (Store.ConfigError != null) tray.Warn("設定檔有問題：" + Store.ConfigError);
             }
+            Calendar.Reload(false);   // 連動設定檔在 Dropbox：別台電腦改了也會同步過來
 
             bool fs = Cfg.hideInFullscreen && Native.FullscreenBusy();
             if (fs != fullscreen) { fullscreen = fs; ApplyVisibility(false); }
 
-            // 電腦睡過一覺、或離開鍵盤滑鼠夠久，就當作休息過了
+            // 電腦睡過一覺、或離開鍵盤滑鼠夠久，就當作休息過了（喝水不歸零）
             if (dt > 120 || Native.IdleSeconds() >= Cfg.breakResetMinutes * 60)
             {
                 ActiveSeconds = 0;
                 if (Phase == Phase.Nudge && !demo) Finish("away");
+                else if (Phase == Phase.Water && !demo) FinishWater("away");
+                if (dt > 120) Calendar.SyncNow();
             }
-            else if (Phase != Phase.Stretch) ActiveSeconds += dt;
+            else
+            {
+                if (Phase != Phase.Stretch) ActiveSeconds += dt;
+                if (Phase != Phase.Water) WaterSeconds += dt;
+            }
 
             foreach (var sid in claudeBusy.Where(p => (now - p.Value).TotalHours > 1).Select(p => p.Key).ToList()) claudeBusy.Remove(sid);
             Bubble.KeepOnTop();
             if (++ticks % 5 == 0) tray.Refresh();
+            Calendar.Tick(now);
+            QueueReminders(now);
+            if (SpeakNext(now)) return;
 
             if (Phase != Phase.Idle || Bubble.Kind == "done" || Bubble.Kind == "bye") return;
             if (Hidden || fullscreen || IsPaused || InQuietHours(now) || now < nextAllowed) return;
             bool due = ActiveSeconds >= Cfg.intervalMinutes * 60;
             bool claudeDue = Cfg.claudeHook && ClaudeBusySeconds(now) >= Cfg.claudeDelaySeconds
                 && ActiveSeconds >= Cfg.claudeEarlyMinutes * 60;
-            if (!due && !claudeDue) return;
+            bool waterDue = Cfg.water && WaterSeconds >= Cfg.waterMinutes * 60;
+            if (!due && !claudeDue && !waterDue) return;
             if (Cfg.holdDuringCalls && Native.MicOrCameraInUse()) return;   // 通話中，下一輪再看
-            Nudge(due ? "timer" : "claude", null, false);
+            if (InMeeting(now) != null) return;                               // 行事曆上正在開會，結束再叫
+            if (due || claudeDue) Nudge(due ? "timer" : "claude", null, false);
+            else WaterNudge(false);
+        }
+
+        // 行事曆上正在開會（設定要「開會時暫停」才算）
+        public CalEvent InMeeting(DateTime now)
+        {
+            return Calendar.Link.Linked && Calendar.Link.pauseDuringEvents ? Calendar.BusyNow(now) : null;
         }
 
         // 這次要輪替的動作：依「重點」挑，順序照 exercises.json
@@ -269,6 +337,185 @@ namespace NoodlePet
             StartStretch();
         }
 
+        // ---------- 喝水 ----------
+
+        void WaterNudge(bool isDemo)
+        {
+            demo = isDemo;
+            Phase = Phase.Water;
+            Pet.SetPose("drink");
+            Bubble.ShowWater(isDemo ? 0 : WaterToday + 1);
+        }
+
+        public void WaterDone()
+        {
+            if (Phase != Phase.Water) return;
+            if (!demo)
+            {
+                Store.Log("water", "done", "timer");
+                WaterToday++;
+                WaterSeconds = 0;
+                nextAllowed = DateTime.Now.AddMinutes(1);
+            }
+            Phase = Phase.Idle;
+            Pet.SetPose("wave");
+            Pet.Hop(1);
+            Pet.Sprites.Release("drink");
+            int n = demo ? 1 : WaterToday;
+            Bubble.ShowDone("喝好了！", n <= 1 ? "今天第一杯水" : "今天第 " + n + " 杯水了");
+            tray.Refresh();
+        }
+
+        public void WaterSnooze()
+        {
+            if (Phase != Phase.Water) return;
+            if (!demo) { Store.Log("water", "snoozed", "timer"); WaterLater(); }
+            Phase = Phase.Idle;
+            demo = false;
+            Pet.SetPose("wave");
+            Pet.Sprites.Release("drink");
+            Bubble.ShowBye(Cfg.snoozeMinutes);
+        }
+
+        public void WaterIgnore()
+        {
+            if (Phase != Phase.Water) return;
+            if (!demo) { Store.Log("water", "ignored", "timer"); WaterLater(); }
+            Phase = Phase.Idle;
+            demo = false;
+            Pet.Sprites.Release("drink");
+            Bubble.Dismiss();
+        }
+
+        void FinishWater(string outcome)   // away：泡泡開著人就走了
+        {
+            Store.Log("water", outcome, "timer");
+            WaterLater();
+            Phase = Phase.Idle;
+            Pet.Sprites.Release("drink");
+            Bubble.Dismiss();
+        }
+
+        // 晚點／沒理：再用 snoozeMinutes 分鐘電腦才會再叫
+        void WaterLater()
+        {
+            WaterSeconds = Math.Max(0, (Cfg.waterMinutes - Cfg.snoozeMinutes) * 60);
+            nextAllowed = DateTime.Now.AddMinutes(Cfg.snoozeMinutes);
+        }
+
+        // ---------- 自訂提醒、行事曆：桌寵說話 ----------
+
+        // 到時間的自訂提醒、快開始的活動，排進「要說的話」
+        void QueueReminders(DateTime now)
+        {
+            var st = Store.State;
+            bool dirty = false;
+            foreach (var r in Cfg.reminders.ToList())
+            {
+                string last;
+                if (!st.reminderLast.TryGetValue(r.id, out last))   // 沒看過的提醒（例如手動加進設定檔）：從現在開始算，不補之前的
+                {
+                    st.reminderLast[r.id] = Iso(now);
+                    dirty = true;
+                    continue;
+                }
+                var at = r.Last(now);
+                if (at == null || at.Value <= ParseIso(last)) continue;
+                st.reminderLast[r.id] = Iso(at.Value);
+                dirty = true;
+                Enqueue(Say.Custom(r, at.Value));
+                if (r.repeat == "once")   // 單次的響過就關掉
+                {
+                    r.enabled = false;
+                    Store.SaveConfig();
+                    if (settings != null) settings.Reload();
+                }
+            }
+            foreach (var id in st.reminderLast.Keys.Where(k => !Cfg.reminders.Any(r => r.id == k)).ToList()) { st.reminderLast.Remove(id); dirty = true; }
+            foreach (var e in Calendar.Due(now))
+            {
+                if (st.eventsReminded.ContainsKey(e.Key)) continue;
+                st.eventsReminded[e.Key] = Iso(e.Start);
+                dirty = true;
+                Enqueue(Say.Event(e));
+            }
+            foreach (var k in st.eventsReminded.Where(p => ParseIso(p.Value) < now.AddDays(-2)).Select(p => p.Key).ToList()) { st.eventsReminded.Remove(k); dirty = true; }
+            if (dirty) Store.SaveState();
+        }
+
+        void Enqueue(Say s)
+        {
+            if ((saying != null && saying.Key == s.Key) || sayQueue.Any(x => x.Key == s.Key)) return;
+            sayQueue.Add(s);
+        }
+
+        // 有話要說就先說：不受暫停、安靜時段影響；伸展做到一半就等做完。
+        // 全螢幕（看影片、簡報）時先等，離開全螢幕桌寵回來再說（這時系統通知多半也被勿擾擋掉）；桌寵收起來才改用 Windows 通知
+        bool SpeakNext(DateTime now)
+        {
+            if (Phase == Phase.Say) return true;
+            var next = sayQueue.Where(s => s.Due <= now).OrderBy(s => s.Due).FirstOrDefault();
+            if (next == null) return false;
+            if (Hidden)
+            {
+                sayQueue.Remove(next);
+                tray.Notify(next.Eyebrow + " · " + next.When(now), next.Title + (next.IsEvent ? "\n" + next.Detail() : ""));
+                return false;
+            }
+            if (fullscreen || Phase == Phase.Stretch || Phase == Phase.Intro || Pet.Arriving) return false;
+            if (Phase == Phase.Nudge || Phase == Phase.Water)   // 伸展、喝水的提醒先收起來，說完再叫
+            {
+                if (!demo) nextAllowed = now.AddMinutes(1);
+                if (Phase == Phase.Water) Pet.Sprites.Release("drink");
+                Phase = Phase.Idle;
+                demo = false;
+            }
+            sayQueue.Remove(next);
+            Speak(next, now);
+            return true;
+        }
+
+        void Speak(Say s, DateTime now)
+        {
+            saying = s;
+            Phase = Phase.Say;
+            Pet.SetPose("wave");
+            Bubble.ShowSay(s, now, sayQueue.Count(x => x.Due <= now));
+        }
+
+        public void SayDone()
+        {
+            if (Phase != Phase.Say) return;
+            saying = null;
+            Phase = Phase.Idle;
+            Bubble.Dismiss();
+        }
+
+        public void SaySnooze()
+        {
+            if (Phase != Phase.Say) return;
+            if (saying.Kind != "demo") { saying.Due = DateTime.Now.AddMinutes(Cfg.snoozeMinutes); sayQueue.Add(saying); }
+            saying = null;
+            Phase = Phase.Idle;
+            Pet.SetPose("wave");
+            Bubble.ShowBye(Cfg.snoozeMinutes);
+        }
+
+        // 設定視窗新增、修改、重新打開某個提醒：從現在開始算，不補之前錯過的
+        public void ReminderEdited(Reminder r)
+        {
+            Store.State.reminderLast[r.id] = Iso(DateTime.Now);
+            Store.SaveState();
+        }
+
+        static string Iso(DateTime t) { return t.ToString("o", CultureInfo.InvariantCulture); }
+
+        static DateTime ParseIso(string s)
+        {
+            DateTime t;
+            return DateTime.TryParse(s, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out t) ? t : DateTime.MinValue;
+        }
+
         // ---------- 開場導覽 ----------
 
         public void StartIntro()
@@ -316,7 +563,12 @@ namespace NoodlePet
             if (Hidden) { SetHidden(false); return; }
             if (Phase != Phase.Idle) return;
             Pet.SetPose("wave");
-            Bubble.ShowHello(HelloLine(), "今天完成 " + DoneToday + " 組");
+            Bubble.ShowHello(HelloLine(), TodayLine());
+        }
+
+        public string TodayLine()
+        {
+            return "今天完成 " + DoneToday + " 組" + (Cfg.water || WaterToday > 0 ? "、喝水 " + WaterToday + " 杯" : "");
         }
 
         public void ShowMenu() { tray.ShowMenu(); }
@@ -328,6 +580,8 @@ namespace NoodlePet
             if (PausedUntil(out until)) return until.Date > now.Date ? "暫停中，明天再提醒你" : "暫停中，" + until.ToString("HH:mm") + " 再提醒你";
             if (InQuietHours(now)) return "安靜時段，先不提醒";
             if (Cfg.holdDuringCalls && Native.MicOrCameraInUse()) return "你在通話中，先不打擾";
+            var meeting = InMeeting(now);
+            if (meeting != null) return "行事曆上在開會，" + meeting.End.ToString("HH:mm") + " 結束再叫你";
             int left = MinutesLeft();
             return left <= 1 ? "快要叫你起來動一動了" : "再 " + left + " 分鐘叫你起來動一動";
         }
@@ -337,7 +591,7 @@ namespace NoodlePet
         public string StatusLine()
         {
             string tail = IsPaused ? "暫停中" : Hidden ? "已收起" : "再 " + MinutesLeft() + " 分鐘";
-            return "今天完成 " + DoneToday + " 組 · " + tail;
+            return TodayLine() + " · " + tail;
         }
 
         // ---------- 狀態切換 ----------
@@ -357,6 +611,7 @@ namespace NoodlePet
             Store.State.pausedUntil = until.ToString("o", CultureInfo.InvariantCulture);
             Store.SaveState();
             Ignore();
+            WaterIgnore();
             tray.Refresh();
         }
 
@@ -377,6 +632,8 @@ namespace NoodlePet
             {
                 if (Phase == Phase.Nudge) Ignore();
                 else if (Phase == Phase.Stretch) SkipStretch();
+                else if (Phase == Phase.Water) WaterIgnore();
+                else if (Phase == Phase.Say) SayDone();   // 正在說的話已經看到了
                 else if (Phase == Phase.Intro) { Phase = Phase.Idle; Bubble.Dismiss(); }
                 else Bubble.Dismiss();
             }
@@ -442,6 +699,15 @@ namespace NoodlePet
 
         // ---------- 示範選單 ----------
 
+        // 設定頁的「試試看」：用這則提醒的內容示範一次（不影響真正的提醒）
+        public void DemoSay(string text)
+        {
+            sayText = text;
+            Demo("say");
+        }
+
+        string sayText;
+
         public void Demo(string what)
         {
             Action go = () =>
@@ -449,8 +715,26 @@ namespace NoodlePet
                 if (Hidden) SetHidden(false);
                 if (Phase == Phase.Stretch) SkipStretch();
                 if (Phase == Phase.Nudge) { Phase = Phase.Idle; demo = false; Bubble.Dismiss(); }
+                if (Phase == Phase.Water) { Phase = Phase.Idle; demo = false; Bubble.Dismiss(); }
+                if (Phase == Phase.Say)   // 真的提醒放回去，示範完再說
+                {
+                    if (saying.Kind != "demo") { saying.Due = DateTime.Now; sayQueue.Add(saying); }
+                    saying = null;
+                    Phase = Phase.Idle;
+                    Bubble.Dismiss();
+                }
                 if (Phase == Phase.Intro) { Phase = Phase.Idle; Bubble.Dismiss(); }
-                if (what == "intro") { Phase = Phase.Intro; Pet.SetPose("wave"); Bubble.ShowIntro(0); }
+                var now = DateTime.Now;
+                if (what == "water") WaterNudge(true);
+                else if (what == "say")
+                {
+                    Speak(new Say { Key = "demo", Kind = "demo", Title = sayText ?? "三點了，記得回覆廠商的信！", Due = now, At = now }, now);
+                    sayText = null;
+                }
+                else if (what == "event")
+                    Speak(new Say { Key = "demo", Kind = "demo", IsEvent = true, Title = "產品週會", Place = "三樓會議室",
+                        Due = now, At = now.AddMinutes(10), End = now.AddMinutes(70) }, now);
+                else if (what == "intro") { Phase = Phase.Intro; Pet.SetPose("wave"); Bubble.ShowIntro(0); }
                 else if (what == "drop") Pet.Reenter();
                 else if (what == "peek") Nudge("demo", null, true);
                 else if (what == "celebrate") { demo = true; Pet.SetPose("wave"); Pet.Hop(1); Bubble.ShowDone(DoneToday + 1); }

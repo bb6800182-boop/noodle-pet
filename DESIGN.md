@@ -124,6 +124,12 @@ components:
     typography: "{typography.button}"
     rounded: "{rounded.pill}"
     padding: 6px 14px
+  chip-selected:
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.on-primary}"
+    typography: "{typography.button}"
+    rounded: "{rounded.pill}"
+    padding: 4px 10px
 ---
 
 ## Overview
@@ -135,6 +141,8 @@ components:
 - `{colors.semantic-danger}` #eb5757：輸入錯誤、移除連結這類破壞性動作。全域沒有錯誤色；在 surface-1 上對比 5.6:1。
 - 差異檢視的底色：success／danger 加 15% 不透明度（success-tint、danger-tint），只當底色，上面的字仍用 ink。
 - 焦點外框：`{colors.primary-focus}` 50% 不透明度、2px，只在鍵盤操作時出現。
+- 多選小膠囊（chip，例如自訂提醒的星期幾）：未選是 hairline-strong 外框、ink-subtle 字；選中是 `{colors.primary}` 底、on-primary 字。單選分段（segment）選中只換 surface，多選要一眼看出勾了哪幾個，所以用 primary。
+- 喝水動作裡的杯子、水是插畫素材（水藍色），和桌寵角色一樣不受 UI token 約束。
 
 ## 對比（WCAG AA）
 

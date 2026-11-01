@@ -66,6 +66,10 @@ namespace NoodlePet
             demo.DropDownItems.Add("探頭提醒", null, (o, e) => brain.Demo("peek"));
             demo.DropDownItems.Add("完成慶祝", null, (o, e) => brain.Demo("celebrate"));
             demo.DropDownItems.Add("Claude 做完了", null, (o, e) => brain.Demo("claude"));
+            demo.DropDownItems.Add(new ToolStripSeparator());
+            demo.DropDownItems.Add("喝水提醒", null, (o, e) => brain.Demo("water"));
+            demo.DropDownItems.Add("自訂提醒", null, (o, e) => brain.Demo("say"));
+            demo.DropDownItems.Add("行事曆提醒", null, (o, e) => brain.Demo("event"));
 
             var settings = new ToolStripMenuItem("設定…", null, (o, e) => brain.OpenSettings(null));
             var quit = new ToolStripMenuItem("結束", null, (o, e) => System.Windows.Application.Current.Shutdown());
@@ -143,7 +147,12 @@ namespace NoodlePet
             if (show != null) show.Invoke(icon, null);
         }
 
-        public void Warn(string text) { icon.ShowBalloonTip(5000, Program.AppName, text, ToolTipIcon.Warning); }
+        public void Warn(string text) { icon.ShowBalloonTip(5000, Program.AppName, Cut(text, 250), ToolTipIcon.Warning); }
+
+        // 桌寵收起來或全螢幕時，提醒改用 Windows 通知（勿擾模式下會進通知中心）
+        public void Notify(string title, string text) { icon.ShowBalloonTip(10000, Cut(title, 60), Cut(text, 250), ToolTipIcon.Info); }
+
+        static string Cut(string s, int n) { s = s ?? ""; return s.Length > n ? s.Substring(0, n - 1) + "…" : s; }
 
         public void Dispose()
         {
@@ -160,6 +169,13 @@ namespace NoodlePet
                 Subtle = ColorTranslator.FromHtml("#8a8f98"), Primary = ColorTranslator.FromHtml("#5e6ad2");
 
             public DarkRenderer() : base(new Colors()) { RoundedEdges = false; }
+
+            // 滑過、按下、子選單展開中都用同一個 hover 色（內建在子選單展開時會改用系統的淺藍底，字的對比不夠）
+            protected override void OnRenderMenuItemBackground(ToolStripItemRenderEventArgs e)
+            {
+                if (!e.Item.Enabled || !(e.Item.Selected || e.Item.Pressed)) return;
+                using (var b = new SolidBrush(Hover)) e.Graphics.FillRectangle(b, new Rectangle(2, 0, e.Item.Width - 4, e.Item.Height));
+            }
 
             protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
             {

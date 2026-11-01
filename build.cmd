@@ -19,7 +19,7 @@ if /i "%~1"=="snapshot" (
 >>"%RSP%" echo /r:"%WPF%\PresentationFramework.dll" /r:"%WPF%\PresentationCore.dll" /r:"%WPF%\WindowsBase.dll"
 >>"%RSP%" echo /r:"%FW%\System.Xaml.dll" /r:"%FW%\System.Web.Extensions.dll" /r:"%WPF%\UIAutomationProvider.dll" /r:"%WPF%\UIAutomationTypes.dll"
 >>"%RSP%" echo /r:System.dll /r:System.Core.dll /r:System.Drawing.dll /r:System.Windows.Forms.dll
->>"%RSP%" echo /resource:assets\exercises.json,exercises.json /resource:src\Bubble.xaml,Bubble.xaml /resource:src\Theme.xaml,Theme.xaml
+>>"%RSP%" echo /resource:assets\exercises.json,exercises.json /resource:src\Bubble.xaml,Bubble.xaml /resource:src\Theme.xaml,Theme.xaml /resource:gas\calendar-relay.gs,calendar-relay.gs
 for %%f in (assets\tray-*.png) do >>"%RSP%" echo /resource:%%f,%%~nxf
 for /d %%c in (assets\sprites\*) do (
   for %%f in (%%c\*.png %%c\*.json) do >>"%RSP%" echo /resource:%%f,%%~nxc.%%~nxf

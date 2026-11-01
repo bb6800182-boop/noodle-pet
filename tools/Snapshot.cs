@@ -50,13 +50,39 @@ namespace NoodlePet
                     bubble.ShowIntro(i);
                     Bubble(bubble, "bubble-8-intro-" + i);
                 }
+                var now = DateTime.Now;
+                bubble.ShowWater(3);
+                Bubble(bubble, "bubble-9-water");
+                bubble.ShowDone("喝好了！", "今天第 3 杯水了");
+                Bubble(bubble, "bubble-10-water-done");
+                bubble.ShowSay(new Say { Kind = "custom", Title = "三點了，記得回覆廠商的信！", At = now.AddMinutes(-20), Due = now }, now, 0);
+                Bubble(bubble, "bubble-11-say");
+                bubble.ShowSay(new Say { Kind = "event", IsEvent = true, Title = "產品週會", Place = "三樓會議室",
+                    At = now.AddMinutes(10), End = now.AddMinutes(70), Due = now }, now, 1);
+                Bubble(bubble, "bubble-12-event");
 
+                // 設定頁：放幾筆示範資料（只在記憶體裡，不存檔）
+                brain.Cfg.reminders.Add(new Reminder { text = "去吃飯囉", time = "12:00" });
+                brain.Cfg.reminders.Add(new Reminder { text = "週報記得交", time = "16:30", repeat = "days", days = new System.Collections.Generic.List<int> { 5 } });
+                brain.Cfg.reminders.Add(new Reminder { text = "打電話給包材廠商確認交期", time = "10:00", repeat = "once",
+                    date = now.AddDays(1).ToString("yyyy-MM-dd"), enabled = false });
                 var settings = new SettingsWindow(brain);
-                foreach (var id in new[] { "remind", "pet", "moves", "quiet", "claude", "general" })
+                foreach (var id in new[] { "remind", "moves", "water", "reminders", "calendar", "pet", "quiet", "claude", "general" })
                 {
                     settings.Go(id);
                     Save((FrameworkElement)settings.Content, "settings-" + id, 920, 1500, "#010102");
                 }
+                brain.Calendar.Link = new CalendarLink { url = "https://script.google.com/macros/s/AKfycbx0000000000000000000000000/exec", token = "demo" };
+                brain.Calendar.Calendars = new System.Collections.Generic.List<CalInfo> {
+                    new CalInfo { Id = "bryan@example.com", Name = "bryan@example.com", Primary = true },
+                    new CalInfo { Id = "work@example.com", Name = "work@example.com" },
+                    new CalInfo { Id = "zh-tw.taiwan#holiday@group.v.calendar.google.com", Name = "台灣的節慶假日" } };
+                brain.Calendar.Events = new System.Collections.Generic.List<CalEvent> {
+                    new CalEvent { Key = "a", Title = "產品週會", Start = now.AddMinutes(-10), End = now.AddMinutes(50), Busy = true },
+                    new CalEvent { Key = "b", Title = "供應商來訪", Start = now.AddHours(2), End = now.AddHours(3), Busy = true } };
+                brain.Calendar.LastSync = now;
+                settings.Go("calendar");
+                Save((FrameworkElement)settings.Content, "settings-calendar-linked", 920, 1500, "#010102");
                 Console.WriteLine("ok: " + dir);
             }
             catch (Exception e)

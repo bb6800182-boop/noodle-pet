@@ -12,7 +12,9 @@ namespace NoodlePet
     // 自建對話框（不用系統訊息框）：Enter = 主要按鈕、Esc = 取消
     public static class Dialog
     {
-        public static bool Confirm(Window owner, string title, string message, UIElement extra, string ok, string cancel, bool danger)
+        // validate：按主要按鈕時先檢查，不通過就不關（表單用）；focus：一打開要先聚焦的欄位
+        public static bool Confirm(Window owner, string title, string message, UIElement extra, string ok, string cancel, bool danger,
+            Func<bool> validate = null, UIElement focus = null)
         {
             var w = new Window
             {
@@ -45,12 +47,12 @@ namespace NoodlePet
                 buttons.Children.Add(no);
             }
             var yes = new Button { Content = ok, Style = Theme.Style(danger ? "button-danger" : "button-primary"), IsDefault = true, IsCancel = cancel == null };
-            yes.Click += (s, e) => { result = true; w.Close(); };
+            yes.Click += (s, e) => { if (validate != null && !validate()) return; result = true; w.Close(); };
             buttons.Children.Add(yes);
             panel.Children.Add(buttons);
             w.Content = panel;
             w.SourceInitialized += (s, e) => Native.DarkTitleBar(new WindowInteropHelper(w).Handle);
-            w.Loaded += (s, e) => yes.Focus();
+            w.Loaded += (s, e) => (focus ?? yes).Focus();
             w.ShowDialog();
             return result;
         }

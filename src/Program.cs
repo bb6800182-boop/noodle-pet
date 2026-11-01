@@ -9,11 +9,11 @@ using System.Windows.Markup;
 using System.Windows.Media;
 
 [assembly: AssemblyTitle("拉麵")]
-[assembly: AssemblyDescription("拉筋的麵：會提醒你起來伸展的桌面寵物")]
+[assembly: AssemblyDescription("拉筋的麵：會提醒你起來伸展、喝水的桌面寵物")]
 [assembly: AssemblyProduct("拉麵")]
 [assembly: AssemblyCopyright("角色與動作素材：Noodle © 2026 Pete Cybriwsky（MIT）")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.1.0.0")]
+[assembly: AssemblyFileVersion("1.1.0.0")]
 // 宣告目標 .NET Framework 4.8：才會啟用新版 WPF 的無障礙行為（例如螢幕閱讀器的即時播報）
 [assembly: TargetFramework(".NETFramework,Version=v4.8", FrameworkDisplayName = ".NET Framework 4.8")]
 
@@ -22,7 +22,7 @@ namespace NoodlePet
     static class Program
     {
         public const string AppName = "拉麵";
-        public const string Version = "1.0.0";
+        public const string Version = "1.1.0";
 
         [STAThread]
         static void Main()
