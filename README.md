@@ -1,12 +1,14 @@
 # 拉麵（noodle-pet）v1.1.2
 
+**繁體中文** ｜ [English](README.en.md)
+
 拉筋的麵：待在桌面上的小桌寵，連續用電腦一段時間就叫你起來伸展、喝水，還會親自示範動作、幫你計時；也會照你設的時間提醒你，或看 Google 月曆提醒你開會。
 
 > **非官方改寫版**：角色、動作示範與說明來自 Pete Cybriwsky 的 [Noodle](https://tonitherigatoni.com/)（[原始碼](https://github.com/pcybriwsky/noodle)，MIT 授權），與原作者無關，也未經原作者背書。Windows 桌寵、喝水動作、提醒和行事曆功能是這個版本另外做的。
 
 ## 使用
 
-- 從[介紹頁](https://c520.pages.dev/lamian/)下載 `noodle-pet.exe`，或自己執行 `build.cmd` 編譯出 `dist\noodle-pet.exe`（用 Windows 內建的編譯器，不用裝任何東西）。直接執行就好，不用安裝；需要 Windows 10/11 內建的 .NET Framework 4.8。
+- 到[介紹頁](https://c520.pages.dev/lamian/)下載 `noodle-pet.exe`，放到固定的資料夾（例如「文件」）直接執行就好，不用安裝，也不用另外裝任何東西（Windows 10／11 都能跑）。第一次執行如果跳出「Windows 已保護您的電腦」，按「其他資訊」→「仍要執行」。
 - **左鍵點桌寵**：打招呼、看還有幾分鐘；提醒出現時點牠就開始；做動作時點牠展開步驟；提醒沒接到（沒理、按「晚點」、喝水時人走開），半小時內點牠會再叫出來。
 - **拖曳**：抓著會吊在半空中；「走來走去」模式放手會掉回工作列。
 - **右鍵點桌寵**（或系統匣圖示）：現在做一組（剛剛有沒做的就先補那組）、喝了一杯水（補記）、切換固定位置／走來走去、暫停、收起、示範、設定。
@@ -48,7 +50,9 @@ Google 月曆的連動設定檔 `calendar-link.json` 放在**專案資料夾**�
 加入的是三個 http hook（UserPromptSubmit、Stop、StopFailure），只打本機 `127.0.0.1:47615`；Claude 忙超過 15 秒、而且你已經坐了 20 分鐘以上，桌寵就提早叫你。
 有用同步腳本管理 `.claude` 設定的話，記得也同步這次的變更。
 
-## 重新建置
+## 從原始碼編譯（開發用）
+
+一般使用者直接下載 exe 就好。想自己編譯的話執行 `build.cmd`：它用 Windows 內建的 C# 編譯器（.NET Framework 4.8）產生 `dist\noodle-pet.exe`，不用裝 Visual Studio 或其他工具。
 
 ```
 build.cmd                     :: 編譯 dist\noodle-pet.exe（用 Windows 內建的 csc，不用裝任何東西）
