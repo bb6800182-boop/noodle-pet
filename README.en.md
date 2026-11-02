@@ -10,7 +10,7 @@ The interface is in Traditional Chinese. Below, menu and button names are given 
 
 ## Getting started
 
-Download `noodle-pet.exe` from the [project page](https://c520.pages.dev/lamian/), put it in a folder you'll keep, and run it. There's no installer and nothing else to install: it runs on the .NET Framework 4.8 that comes with Windows 10 and 11. The exe isn't code-signed, so the first time, Windows SmartScreen may say "Windows protected your PC". Click "More info", then "Run anyway".
+Download `noodle-pet.exe` from [Releases](https://github.com/bb6800182-boop/noodle-pet/releases/latest) (the [project page](https://c520.pages.dev/lamian/) has screenshots and setup steps, in Chinese), put it in a folder you'll keep, and run it. There's no installer and nothing else to install: it runs on the .NET Framework 4.8 that comes with Windows 10 and 11. The exe isn't code-signed, so the first time, Windows SmartScreen may say "Windows protected your PC". Click "More info", then "Run anyway".
 
 On first launch, the pet drops in from the top of the screen and walks you through a short intro.
 
@@ -71,7 +71,7 @@ node tools\make-drink.mjs assets\figures
                               :: regenerate the drinking pose drink.svg from each character's idle.svg
 ```
 
-The project page (https://c520.pages.dev/lamian/) lives in `site/` and is deployed with the author's C520 site. The downloadable exe is copied in at release time and isn't stored in git.
+The project page (https://c520.pages.dev/lamian/) lives in `site/` and is deployed with the author's C520 site. Its download button always points to the latest GitHub Release.
 
 ## Project structure
 

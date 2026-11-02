@@ -8,7 +8,7 @@
 
 ## 使用
 
-- 到[介紹頁](https://c520.pages.dev/lamian/)下載 `noodle-pet.exe`，放到固定的資料夾（例如「文件」）直接執行就好，不用安裝，也不用另外裝任何東西（Windows 10／11 都能跑）。第一次執行如果跳出「Windows 已保護您的電腦」，按「其他資訊」→「仍要執行」。
+- 到 [Releases](https://github.com/bb6800182-boop/noodle-pet/releases/latest) 下載 `noodle-pet.exe`（[介紹頁](https://c520.pages.dev/lamian/)有畫面和安裝步驟），放到固定的資料夾（例如「文件」）直接執行就好，不用安裝，也不用另外裝任何東西（Windows 10／11 都能跑）。第一次執行如果跳出「Windows 已保護您的電腦」，按「其他資訊」→「仍要執行」。
 - **左鍵點桌寵**：打招呼、看還有幾分鐘；提醒出現時點牠就開始；做動作時點牠展開步驟；提醒沒接到（沒理、按「晚點」、喝水時人走開），半小時內點牠會再叫出來。
 - **拖曳**：抓著會吊在半空中；「走來走去」模式放手會掉回工作列。
 - **右鍵點桌寵**（或系統匣圖示）：現在做一組（剛剛有沒做的就先補那組）、喝了一杯水（補記）、切換固定位置／走來走去、暫停、收起、示範、設定。
@@ -64,14 +64,11 @@ node tools\make-drink.mjs assets\figures
                               :: 從各角色的 idle.svg 重新產生喝水動作 drink.svg
 ```
 
-## 發布到 C520 網站
-
-介紹頁 https://c520.pages.dev/lamian/ 的原始檔在 `site/`，由 C520 專案的 `deploy.ps1` 跟其他作品一起部署。發新版時：
+## 發布新版
 
 1. `build.cmd` 編譯，確認 `src/Program.cs` 的版本號。
-2. 把 `dist\noodle-pet.exe` 複製到 `site\noodle-pet.exe`（exe 不進 git；`deploy.ps1` 找不到它會停下來）。
-3. 改 `site/index.html` 開場的版本和檔案大小（例如「v1.1.2・約 16 MB」）。
-4. 照 C520 README 的「部署」執行 `deploy.ps1`。
+2. 在 GitHub 的 Releases 建一筆新的 Release：tag 用 `v版本號`（例如 `v1.1.2`），附上 `dist\noodle-pet.exe`，寫上更新內容和 exe 的 SHA-256（PowerShell：`Get-FileHash dist\noodle-pet.exe`）。不要勾「Pre-release」，不然「最新版」的下載連結不會換到這一版。
+3. 介紹頁和 README 的下載按鈕都連到 `releases/latest/download/noodle-pet.exe`，會自動拿到新版。介紹頁（`site/`，由 C520 專案的 `deploy.ps1` 跟其他作品一起部署）只有內容要改時才需要重新部署。
 
 泡泡截圖（`site/shots/`）用 `build.cmd snapshot` 產生，只放泡泡的圖：設定頁的圖會讀到自己電腦上的設定（使用者資料夾路徑、自訂提醒），不要放上網站。
 
