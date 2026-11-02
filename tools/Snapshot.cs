@@ -55,7 +55,8 @@ namespace NoodlePet
                 Bubble(bubble, "bubble-9-water");
                 bubble.ShowDone("喝好了！", "今天第 3 杯水了");
                 Bubble(bubble, "bubble-10-water-done");
-                bubble.ShowSay(new Say { Kind = "custom", Title = "三點了，記得回覆廠商的信！", At = now.AddMinutes(-20), Due = now }, now, 0);
+                var three = now.Date.AddHours(15); // 標題寫三點，泡泡上的時間也要是 15:00（介紹頁用這張截圖）
+                bubble.ShowSay(new Say { Kind = "custom", Title = "三點了，記得回覆廠商的信！", At = three, Due = three }, three, 0);
                 Bubble(bubble, "bubble-11-say");
                 bubble.ShowSay(new Say { Kind = "event", IsEvent = true, Title = "產品週會", Place = "三樓會議室",
                     At = now.AddMinutes(10), End = now.AddMinutes(70), Due = now }, now, 1);

@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>拉麵｜會叫你起來伸展、喝水的 Windows 桌寵</title>
+<meta name="description" content="待在桌面上的小桌寵：連續用電腦一段時間就叫你起來伸展、喝水，還會親自示範動作、幫你計時；也能照你設的時間提醒你，或看 Google 月曆提醒你開會。免費、開源，改寫自 Noodle 的非官方 Windows 版。">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="拉麵｜會叫你起來伸展、喝水的 Windows 桌寵">
+<meta property="og:description" content="坐太久了，它會跳出來叫你起來伸展、喝口水，還會親自示範動作。免費、開源。">
+<meta property="og:url" content="https://c520.pages.dev/lamian/">
+<meta property="og:image" content="https://c520.pages.dev/lamian/icon-512.png">
+<link rel="canonical" href="https://c520.pages.dev/lamian/">
+<meta name="theme-color" content="#F7F8F8">
+<meta name="color-scheme" content="light">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+/* 顏色、字級、間距、圓角取自 App 的 DESIGN.md（Linear 系），換成淺色版：C520 網站一律亮色，不跟著系統變深色 */
+:root {
+  color-scheme: light;
+  --primary: #5E6AD2;
+  --primary-hover: #4F5AC2;
+  --on-primary: #FFFFFF;
+  --accent-text: #4B55C0;
+  --tint: #ECEDFA;
+  --canvas: #F7F8F8;
+  --surface-1: #FFFFFF;
+  --surface-2: #F1F2F4;
+  --hairline: #E4E6EA;
+  --hairline-strong: #D0D6E0;
+  --ink: #1B1C1E;
+  --ink-muted: #3C4149;
+  --ink-subtle: #62666D;
+  --shot-bg: #3A4150; /* 泡泡截圖的底色：模擬桌面 */
+  --font: "Segoe UI", "Microsoft JhengHei UI", "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", sans-serif;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 24px;
+  --s-xs: 8px;
+  --s-sm: 12px;
+  --s-md: 16px;
+  --s-lg: 20px;
+  --s-xl: 24px;
+  --s-xxl: 32px;
+  font: 400 15px/1.6 var(--font);
+  background: var(--canvas);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+h1, h2, h3, p, ol, ul, figure { margin: 0; }
+img { max-width: 100%; }
+a { color: var(--accent-text); text-underline-offset: 4px; }
+a:focus-visible, summary:focus-visible, .btn:focus-visible { outline: 3px solid var(--accent-text); outline-offset: 3px; }
+.wrap { max-width: 960px; margin-inline: auto; padding-inline: var(--s-md); }
+.skip { position: absolute; left: 10px; top: 10px; z-index: 9; padding: 10px 16px; border-radius: 999px; background: var(--primary); color: var(--on-primary); transform: translateY(-200%); }
+.skip:focus { transform: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+.ic { width: 22px; height: 22px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* 頁首：回 C520 首頁、App 名稱、下載 */
+.top { display: flex; align-items: center; gap: var(--s-md); min-height: 64px; border-bottom: 1px solid var(--hairline); }
+.home { display: inline-flex; align-items: center; min-height: 44px; padding-right: var(--s-md); border-right: 1px solid var(--hairline-strong); font: 500 17px/1 Georgia, serif; font-variant-numeric: lining-nums; color: var(--ink-subtle); text-decoration: none; }
+.home:hover { color: var(--ink); }
+.brand { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; font-weight: 600; }
+.brand img { width: 32px; height: 32px; border-radius: 8px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 20px; border: 1px solid var(--primary); border-radius: 999px; background: var(--primary); color: var(--on-primary); font: 600 15px/1.2 var(--font); text-decoration: none; white-space: nowrap; }
+.btn:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+.btn.ghost { background: var(--surface-1); color: var(--ink); border-color: var(--hairline-strong); }
+.btn.ghost:hover { background: var(--surface-2); }
+.top .btn { min-height: 40px; padding: 0 16px; font-size: 14px; }
+
+/* 開場 */
+.hero { display: grid; grid-template-columns: auto 1fr; gap: var(--s-xxl); align-items: center; padding-block: 48px 40px; }
+.hero-art { display: grid; place-items: center; width: 184px; height: 184px; border-radius: 50%; background: var(--tint); }
+.hero-art img { width: 168px; height: 168px; }
+.eyebrow { color: var(--accent-text); font-size: 13px; font-weight: 600; letter-spacing: .5px; }
+h1 { margin-top: 6px; font-size: 40px; line-height: 1.2; font-weight: 700; letter-spacing: .5px; }
+.lead { margin-top: var(--s-sm); font-size: 20px; line-height: 1.5; color: var(--ink-muted); }
+.actions { display: flex; flex-wrap: wrap; gap: var(--s-sm); margin-top: var(--s-xl); }
+.meta { margin-top: var(--s-sm); color: var(--ink-subtle); font-size: 13px; }
+
+/* 區塊 */
+section { padding-block: 36px; border-top: 1px solid var(--hairline); }
+h2 { font-size: 26px; line-height: 1.3; font-weight: 700; }
+.sub { margin-top: 6px; color: var(--ink-subtle); }
+.story { margin-top: var(--s-lg); padding: var(--s-xl); border-radius: var(--r-lg); background: var(--surface-1); border: 1px solid var(--hairline); font-size: 17px; line-height: 1.8; }
+.story p + p { margin-top: var(--s-sm); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--s-sm); margin-top: var(--s-lg); }
+.card { padding: var(--s-lg); border-radius: var(--r-lg); background: var(--surface-1); border: 1px solid var(--hairline); }
+.card .ic { color: var(--accent-text); }
+.card h3 { margin-top: 10px; font-size: 17px; line-height: 1.4; }
+.card p { margin-top: 4px; color: var(--ink-subtle); font-size: 14px; }
+
+/* 畫面 */
+.shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--s-md); margin-top: var(--s-lg); }
+.shots img { display: block; width: 100%; height: auto; border-radius: var(--r-lg); background: var(--shot-bg); }
+.shots figcaption { margin-top: var(--s-xs); color: var(--ink-muted); font-size: 14px; }
+
+/* 角色與動作示範（SVG 動畫） */
+.figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: var(--s-sm); margin-top: var(--s-lg); padding: 0; list-style: none; }
+.figs li { display: flex; flex-direction: column; align-items: center; padding: var(--s-md) var(--s-xs); border-radius: var(--r-lg); background: var(--surface-1); border: 1px solid var(--hairline); text-align: center; }
+.figs img { width: 104px; height: 104px; }
+.figs b { margin-top: 6px; font-size: 15px; }
+.figs span { color: var(--ink-subtle); font-size: 13px; }
+.note { margin-top: var(--s-sm); color: var(--ink-subtle); font-size: 13px; }
+
+/* 安裝步驟 */
+.steps { margin-top: var(--s-lg); padding: 0; list-style: none; counter-reset: s; display: grid; gap: var(--s-sm); }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 36px 1fr; gap: var(--s-sm); padding: var(--s-md) var(--s-lg); border-radius: var(--r-lg); background: var(--surface-1); border: 1px solid var(--hairline); }
+.steps li::before { content: counter(s); display: grid; place-items: center; width: 32px; height: 32px; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-weight: 700; }
+.steps b { display: block; }
+.steps span { display: block; color: var(--ink-subtle); font-size: 14px; }
+
+/* 常見問題 */
+details { margin-top: var(--s-sm); border-radius: var(--r-md); background: var(--surface-1); border: 1px solid var(--hairline); }
+summary { display: flex; align-items: center; justify-content: space-between; gap: var(--s-sm); min-height: 52px; padding: 0 var(--s-lg); cursor: pointer; font-weight: 600; list-style: none; }
+summary::-webkit-details-marker { display: none; }
+summary .ic { transition: transform .15s; color: var(--ink-subtle); }
+details[open] summary .ic { transform: rotate(180deg); }
+.faq-a { padding: 0 var(--s-lg) var(--s-lg); color: var(--ink-muted); }
+.faq-a p + p { margin-top: 8px; }
+code { padding: 1px 6px; border-radius: 4px; background: var(--surface-2); font: 13px/1.6 Consolas, "Cascadia Mono", monospace; word-break: break-all; }
+
+.foot { padding-block: var(--s-xxl); border-top: 1px solid var(--hairline); color: var(--ink-subtle); font-size: 13px; }
+.foot p + p { margin-top: 8px; }
+
+@media (max-width: 720px) {
+  .hero { grid-template-columns: 1fr; gap: var(--s-lg); padding-block: 32px; }
+  .hero-art { width: 128px; height: 128px; }
+  .hero-art img { width: 116px; height: 116px; }
+  h1 { font-size: 34px; }
+  .lead { font-size: 18px; }
+  .story { padding: var(--s-lg); font-size: 16px; }
+}
+@media (max-width: 400px) {
+  .brand span { display: none; }
+  .actions .btn { width: 100%; }
+  .figs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+<svg class="defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  <symbol id="i-stretch" viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2"/><path d="M4.5 8.5 12 10l7.5-1.5M12 10v5.5m0 0-3 6m3-6 3 6"/></symbol>
+  <symbol id="i-demo" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="m10 9 5 3-5 3V9Z"/></symbol>
+  <symbol id="i-water" viewBox="0 0 24 24"><path d="M6 4h12l-1.6 15.2a2 2 0 0 1-2 1.8H9.6a2 2 0 0 1-2-1.8L6 4Z"/><path d="M6.7 10.5h10.6"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-8 8H4l1.6-3A8 8 0 1 1 20 12Z"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18m-13 4h2m4 0h2"/></symbol>
+  <symbol id="i-quiet" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3m5 0h5"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5m8-10 5 5-5 5"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+</svg>
+
+<header class="wrap top">
+  <a class="home" href="/" aria-label="回 C520 首頁">C520</a>
+  <div class="brand"><img src="icon.svg" alt="" width="32" height="32"><span>拉麵</span></div>
+  <a class="btn" href="noodle-pet.exe" download="noodle-pet.exe">下載</a>
+</header>
+
+<main id="main" class="wrap" tabindex="-1">
+  <div class="hero">
+    <div class="hero-art"><img src="figures/rigatoni-wave.svg" alt="桌寵 Toni（水管麵）笑著揮手打招呼" width="168" height="168"></div>
+    <div>
+      <p class="eyebrow">Windows 桌面寵物</p>
+      <h1>拉麵</h1>
+      <p class="lead">坐太久了，它會跳出來叫你起來伸展、喝口水，還會親自示範動作、幫你計時。</p>
+      <div class="actions">
+        <a class="btn" href="noodle-pet.exe" download="noodle-pet.exe"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>下載（Windows）</a>
+        <a class="btn ghost" href="https://github.com/bb6800182-boop/noodle-pet" target="_blank" rel="noopener noreferrer"><svg class="ic" aria-hidden="true"><use href="#i-code"/></svg>原始碼<span class="sr-only">（GitHub，另開分頁）</span></a>
+      </div>
+      <p class="meta">v1.1.1・約 16 MB・Windows 10／11・不用安裝<br>免費、MIT 開源・改寫自 Noodle 的非官方版本</p>
+    </div>
+  </div>
+
+  <section aria-labelledby="why">
+    <h2 id="why">為什麼做這個</h2>
+    <div class="story">
+      <p>原作是 Pete Cybriwsky 的 <a href="https://github.com/pcybriwsky/noodle" target="_blank" rel="noopener noreferrer">Noodle<span class="sr-only">（另開分頁）</span></a>：一隻會提醒你起來伸展、還會親自示範動作的小麵條。</p>
+      <p>拉麵是它的 Windows 桌寵版：平常待在桌面角落，或在工作列上走來走去，時間到了就跳出來叫你。另外加上喝水提醒、自訂提醒，也會看 Google 月曆，開會時不打擾。</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="what">
+    <h2 id="what">會做什麼</h2>
+    <p class="sub">設定都在右鍵選單的「設定」，改了就自動存檔。</p>
+    <div class="grid">
+      <div class="card"><svg class="ic" aria-hidden="true"><use href="#i-stretch"/></svg><h3>伸展提醒</h3><p>連續用電腦 30 分鐘（可以改）就叫你起來；按「開始」跟著做，它幫你計時。</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true"><use href="#i-demo"/></svg><h3>親自示範動作</h3><p>8 種伸展動作，桌寵一邊示範、泡泡一邊說明步驟；可以選想加強的重點，提醒時輪流排。</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true"><use href="#i-water"/></svg><h3>喝水提醒</h3><p>預設每 60 分鐘拿杯水在旁邊喝給你看，按「喝了」記一杯。</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg><h3>自訂提醒</h3><p>指定時間和重複（每天、平日、自選星期、單次），時間到了桌寵用對話泡泡說一句話。</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg><h3>Google 月曆（選用）</h3><p>開會時先不叫你；活動開始前 10 分鐘（可以改）跳出來提醒。用你自己的 Apps Script 讀取，只讀不寫。</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true"><use href="#i-quiet"/></svg><h3>懂得不打擾</h3><p>5 分鐘沒碰鍵盤滑鼠就算休息過；通話中、全螢幕時不打擾；也可以設安靜時段。</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true"><use href="#i-terminal"/></svg><h3>Claude Code（選用）</h3><p>Claude 在忙、你也坐了 20 分鐘以上，桌寵就提早叫你，趁等的時候起來動一動。</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="shots">
+    <h2 id="shots">畫面</h2>
+    <p class="sub">提醒都用對話泡泡出現在桌寵旁邊。</p>
+    <div class="shots">
+      <figure><img src="shots/nudge.png" alt="伸展提醒泡泡：已經坐了 32 分鐘，這次做「下巴內收」，慢慢做 10 下、約 45 秒；有「開始」「晚點」按鈕和「怎麼做」連結" width="450" height="365" loading="lazy"><figcaption>伸展提醒：坐了多久、這次做什麼</figcaption></figure>
+      <figure><img src="shots/stretch.png" alt="跟著做的泡泡：肩胛夾緊，15 下、每下停 2 秒，倒數 0:50；下面寫著 Claude 做完了，做完這組再回去；有「完成」「跳過」按鈕" width="450" height="464" loading="lazy"><figcaption>跟著做：幫你倒數計時</figcaption></figure>
+      <figure><img src="shots/water.png" alt="喝水提醒泡泡：喝口水吧！起來倒杯水，順便走一走、看看遠方；今天第 3 杯；有「喝了」「晚點」按鈕" width="450" height="327" loading="lazy"><figcaption>喝水提醒：按「喝了」記一杯</figcaption></figure>
+      <figure><img src="shots/say.png" alt="自訂提醒泡泡：15:00，三點了，記得回覆廠商的信！有「知道了」「晚點」按鈕" width="450" height="331" loading="lazy"><figcaption>自訂提醒：桌寵說給你聽</figcaption></figure>
+      <figure><img src="shots/event.png" alt="行事曆提醒泡泡：產品週會，10 分鐘後開始，10:28 到 11:28，三樓會議室；有「知道了」「晚點」按鈕" width="450" height="327" loading="lazy"><figcaption>行事曆提醒：活動名稱、時間和地點</figcaption></figure>
+    </div>
+  </section>
+
+  <section aria-labelledby="pets">
+    <h2 id="pets">挑一隻陪你</h2>
+    <p class="sub">五個角色，設定裡隨時可以換；滑鼠移上去會跟你揮手。</p>
+    <ul class="figs">
+      <li><img src="figures/rigatoni-idle.svg" alt="" width="104" height="104" loading="lazy"><b>Toni</b><span>水管麵</span></li>
+      <li><img src="figures/spaghetti-idle.svg" alt="" width="104" height="104" loading="lazy"><b>Sammy</b><span>直麵</span></li>
+      <li><img src="figures/penne-idle.svg" alt="" width="104" height="104" loading="lazy"><b>Patty</b><span>筆管麵</span></li>
+      <li><img src="figures/lasagna-idle.svg" alt="" width="104" height="104" loading="lazy"><b>Lenny</b><span>千層麵</span></li>
+      <li><img src="figures/sprout-idle.svg" alt="" width="104" height="104" loading="lazy"><b>Sprout</b><span>小芽</span></li>
+    </ul>
+    <h3 class="sr-only">動作示範</h3>
+    <ul class="figs">
+      <li><img src="figures/rigatoni-neck-side.svg" alt="" width="104" height="104" loading="lazy"><b>頸側伸展</b><span>每邊 20 秒</span></li>
+      <li><img src="figures/rigatoni-doorway.svg" alt="" width="104" height="104" loading="lazy"><b>門框伸展</b><span>30 秒</span></li>
+      <li><img src="figures/rigatoni-t-ext.svg" alt="" width="104" height="104" loading="lazy"><b>胸椎伸展</b><span>10 下</span></li>
+      <li><img src="figures/rigatoni-calf-raise.svg" alt="" width="104" height="104" loading="lazy"><b>踮腳尖</b><span>20 下</span></li>
+      <li><img src="figures/rigatoni-drink.svg" alt="" width="104" height="104" loading="lazy"><b>喝水</b><span>拉麵新畫的動作</span></li>
+    </ul>
+    <p class="note">角色與伸展動作示範來自 Noodle（© 2026 Pete Cybriwsky，MIT 授權）。</p>
+  </section>
+
+  <section aria-labelledby="install">
+    <h2 id="install">下載與安裝</h2>
+    <ol class="steps">
+      <li><div><b>下載 noodle-pet.exe</b><span>瀏覽器如果提醒這個檔案不常被下載，選「保留」。不用安裝；建議放到固定的資料夾（例如「文件」）再執行，之後打開「開機自動啟動」才不會找不到它。</span></div></li>
+      <li><div><b>第一次執行</b><span>Windows 可能顯示「Windows 已保護您的電腦」：按「其他資訊」→「仍要執行」。這是因為程式沒有付費的程式碼簽章。</span></div></li>
+      <li><div><b>看開場導覽</b><span>桌寵會從螢幕上方垂降下來，帶你認識怎麼用，順便檢查桌面環境。</span></div></li>
+      <li><div><b>右鍵點桌寵 →「設定」</b><span>調提醒間隔、挑角色、選伸展重點、打開開機自動啟動。</span></div></li>
+      <li><div><b>（選用）連結 Google 月曆</b><span>「設定 → Google 月曆」照三個步驟：複製程式碼、貼到你自己帳號的 Apps Script 並部署、把網址貼回來。</span></div></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="faq">
+    <h2 id="faq">常見問題</h2>
+    <details id="faq-env">
+      <summary>需要什麼環境？<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+      <div class="faq-a"><p>Windows 10 或 11。用的是 Windows 內建的 .NET Framework 4.8，不用另外安裝任何東西。</p></div>
+    </details>
+    <details id="faq-cpu">
+      <summary>會很吃電腦資源嗎？<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+      <div class="faq-a"><p>不會。閒著的時候 CPU 大約 0.5%、記憶體大約 80 MB；相同的動畫影格已經合併，靜止時幾乎不耗 CPU。</p></div>
+    </details>
+    <details id="faq-privacy">
+      <summary>資料存在哪裡？會上傳嗎？<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+      <div class="faq-a"><p>設定與紀錄都存在你的電腦（<code>%USERPROFILE%\.noodle-pet</code>），沒有使用統計，也不上傳。</p><p>Google 月曆是透過你自己帳號裡的 Apps Script 讀取，只讀不寫，金鑰只存在你的電腦；Claude Code 連動只連本機（127.0.0.1）。</p></div>
+    </details>
+    <details id="faq-remove">
+      <summary>怎麼移除？<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+      <div class="faq-a"><p>先在「設定 → 一般」關掉開機自動啟動，右鍵點桌寵選「結束」，再刪掉 noodle-pet.exe 和 <code>%USERPROFILE%\.noodle-pet</code> 資料夾。連過 Google 月曆的話，exe 旁邊的 calendar-link.json 也一起刪掉。</p></div>
+    </details>
+    <details id="faq-official">
+      <summary>這是官方的 Noodle 嗎？<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+      <div class="faq-a"><p>不是。拉麵是非官方的 Windows 改寫版，與 Noodle 原作者無關，也未經原作者背書。角色、動作示範與說明來自 Noodle（MIT 授權），兩份授權全文在「設定 → 一般 → 授權資訊」。</p></div>
+    </details>
+    <details id="faq-health">
+      <summary>伸展動作適合每個人嗎？<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+      <div class="faq-a"><p>伸展動作只是一般的活動建議，不能取代醫療建議。做的時候覺得痛或不舒服就停下來；有傷病的話，請先問醫師或物理治療師。</p></div>
+    </details>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <p>隱私：不收集任何資料、沒有使用統計；設定與紀錄只存在你的電腦。</p>
+  <p>角色、動作示範與說明來自 <a href="https://github.com/pcybriwsky/noodle" target="_blank" rel="noopener noreferrer">Noodle</a>（© 2026 Pete Cybriwsky，MIT 授權）。拉麵是非官方的 Windows 改寫版，與原作者無關，也未經原作者背書。</p>
+  <p>伸展動作只是一般的活動建議，不能取代醫療建議。</p>
+  <p>本專案與 Microsoft、Google、Anthropic 沒有關係；Windows 是 Microsoft 的商標，Google、Google 月曆是 Google 的商標，Claude、Claude Code 是 Anthropic 的商標。</p>
+  <p>原始碼：<a href="https://github.com/bb6800182-boop/noodle-pet" target="_blank" rel="noopener noreferrer">GitHub</a>（MIT 授權）・聯絡：<a href="mailto:bb6800182@gmail.com">bb6800182@gmail.com</a></p>
+  <p><a href="/">更多作品</a></p>
+  <p>© 2026 C520</p>
+</footer>
+<script>
+// 連到某一題（例如 #faq-remove）時自動展開那一題
+const openQ = id => { const d = document.getElementById(id); if (d && d.tagName === 'DETAILS') d.open = true; };
+document.querySelectorAll('a[href^="#faq-"]').forEach(a => a.addEventListener('click', () => openQ(a.hash.slice(1))));
+openQ(decodeURIComponent(location.hash.slice(1)));
+</script>
+</body>
+</html>
