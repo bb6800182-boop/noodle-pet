@@ -1,5 +1,5 @@
 # 建置產物（build.cmd 會重新產生）
 dist/
 
-# Google 月曆連動設定檔：含 Apps Script 網址與金鑰，只留在 Dropbox，不進 git
+# Google 月曆連動設定檔：含 Apps Script 網址與金鑰，只留在本機（或你的同步資料夾），不進 git
 calendar-link.json

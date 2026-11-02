@@ -452,11 +452,11 @@ namespace NoodlePet
             calUnlink = Btn("解除連結…", "button-danger", Unlink);
             var file = Group(
                 Row("連動設定檔", GoogleCalendar.LinkFile, openFolder),
-                Row("解除連結", "清掉網址和金鑰，透過 Dropbox 同步的每台電腦都會一起解除。Apps Script 專案不會被刪。", calUnlink));
+                Row("解除連結", "清掉網址和金鑰；有同步這個資料夾的電腦都會一起解除。Apps Script 專案不會被刪。", calUnlink));
 
             return Section("Google 月曆", "讀取你的 Google 月曆（只讀不寫）：開會時先不叫你伸展、喝水；活動快開始時，桌寵會跳出來提醒你。",
                 Group(statusRow), calSteps, calPicker, Label("怎麼用"), options, Label("連動設定檔"), file,
-                T("這個檔案放在 Dropbox 的專案資料夾，會跟著同步到你每台電腦；裡面有金鑰，已排除在 git 之外，不會傳到 GitHub。",
+                T("這個檔案放在專案資料夾；資料夾用 Dropbox 之類的雲端硬碟同步的話，每台電腦會共用同一份連結。裡面有金鑰，已排除在 git 之外，不會傳到 GitHub。",
                     "t-caption", new Thickness(0, 12, 0, 0)));
         }
 
@@ -643,7 +643,7 @@ namespace NoodlePet
         void Unlink()
         {
             if (!Dialog.Confirm(this, "解除 Google 月曆連結？",
-                "會清掉連動設定檔裡的網址和金鑰；透過 Dropbox 同步的其他電腦也會一起解除。Apps Script 專案不會被刪，不用的話可以到 script.google.com 刪除。",
+                "會清掉連動設定檔裡的網址和金鑰；有同步這個資料夾的其他電腦也會一起解除。Apps Script 專案不會被刪，不用的話可以到 script.google.com 刪除。",
                 null, "解除連結", "取消", true)) return;
             if (UpdateLink(l => { l.url = ""; l.token = ""; l.calendars = new List<string>(); }))
             {

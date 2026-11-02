@@ -1,11 +1,12 @@
-# 拉麵（noodle-pet）v1.1.0
+# 拉麵（noodle-pet）v1.1.1
 
 拉筋的麵：待在桌面上的小桌寵，連續用電腦一段時間就叫你起來伸展、喝水，還會親自示範動作、幫你計時；也會照你設的時間提醒你，或看 Google 月曆提醒你開會。
-角色、動作示範與說明改寫自 [Noodle](https://tonitherigatoni.com/)（MIT），Windows 版另外做成桌寵；喝水動作是另外畫的。
+
+> **非官方改寫版**：角色、動作示範與說明來自 Pete Cybriwsky 的 [Noodle](https://tonitherigatoni.com/)（[原始碼](https://github.com/pcybriwsky/noodle)，MIT 授權），與原作者無關，也未經原作者背書。Windows 桌寵、喝水動作、提醒和行事曆功能是這個版本另外做的。
 
 ## 使用
 
-- 執行 `dist\noodle-pet.exe`（不用安裝；需要 Windows 10/11 內建的 .NET Framework 4.8）。
+- 第一次先執行 `build.cmd` 編譯出 `dist\noodle-pet.exe`（用 Windows 內建的編譯器，不用裝任何東西），之後直接執行它就好（不用安裝；需要 Windows 10/11 內建的 .NET Framework 4.8）。
 - **左鍵點桌寵**：打招呼、看還有幾分鐘；提醒出現時點牠就開始；做動作時點牠展開步驟。
 - **拖曳**：抓著會吊在半空中；「走來走去」模式放手會掉回工作列。
 - **右鍵點桌寵**（或系統匣圖示）：現在做一組、切換固定位置／走來走去、暫停、收起、示範、設定。
@@ -27,7 +28,7 @@
 | `log.jsonl` | 每次伸展／喝水提醒一行：done／snoozed／ignored／away／stopped |
 | `error.log` | 出錯時才有 |
 
-Google 月曆的連動設定檔 `calendar-link.json` 放在**專案資料夾**（exe 在 `dist\` 裡時就是它的上一層），跟著 Dropbox 同步到每台電腦；裡面有金鑰，已排除在 git 之外。
+Google 月曆的連動設定檔 `calendar-link.json` 放在**專案資料夾**（exe 在 `dist\` 裡時就是它的上一層）；專案資料夾用 Dropbox 之類的雲端硬碟同步的話，每台電腦共用同一份連結。裡面有金鑰，已排除在 git 之外。
 
 ## Google 月曆連動（選配）
 
@@ -66,9 +67,16 @@ node tools\make-drink.mjs assets\figures
 - `assets/figures/`：Noodle 的原始 SVG（5 個角色 × 12 個動作）＋ 喝水動作 `drink.svg`
 - `assets/sprites/`：畫好的精靈圖（相同影格已合併，靜止時幾乎不耗 CPU）
 - `tools/`：精靈圖產生器、喝水動作產生器、截圖檢查工具
-- `LICENSE-noodle.txt`：Noodle 的 MIT 授權
+- `LICENSE`：本專案的 MIT 授權；`LICENSE-noodle.txt`：Noodle 的原始 MIT 授權
 
 ## 沒有做的
 
 - Outlook 行事曆（目前只接 Google 月曆）
 - Mac 版的選單列垂降（這裡改成桌寵從螢幕頂端垂降進場）
+
+## 授權與聲明
+
+- 拉麵以 [MIT 授權](LICENSE)釋出。角色、動作示範與說明來自 [Noodle](https://github.com/pcybriwsky/noodle)（© 2026 Pete Cybriwsky，MIT），原始授權保留在 [`LICENSE-noodle.txt`](LICENSE-noodle.txt)。兩份授權全文也編進了 exe：設定 → 一般 →「授權資訊…」。
+- 這是**非官方**的 Windows 改寫版，與 Noodle 原作者無關，也未經原作者背書。
+- 伸展動作只是一般的活動建議，不能取代醫療建議；做的時候覺得痛或不舒服就停下來，有傷病請先問醫師或物理治療師。
+- Claude、Claude Code 是 Anthropic 的商標；Google、Google 月曆是 Google 的商標。本專案與 Anthropic、Google 沒有關係，也未經其背書。

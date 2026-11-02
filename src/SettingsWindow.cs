@@ -622,6 +622,10 @@ namespace NoodlePet
                 try { Process.Start("explorer.exe", "\"" + Store.Dir + "\""); } catch (Exception e) { Dialog.Info(this, "打不開資料夾", e.Message); }
             });
             var intro = Btn("重看一次", "button-secondary", () => brain.StartIntro());
+            var licenses = Btn("授權資訊…", "button-secondary", () => Dialog.Confirm(this, "授權資訊",
+                "拉麵以 MIT 授權釋出；角色、動作示範與說明來自 Noodle，沿用原作者的 MIT 授權。", LicenseView(), "關閉", null, false));
+            licenses.HorizontalAlignment = HorizontalAlignment.Left;
+            licenses.Margin = new Thickness(0, 16, 0, 0);
             return Section("一般", null,
                 Group(
                     Row("開機自動啟動", "登入 Windows 後桌寵自己出來。",
@@ -630,7 +634,42 @@ namespace NoodlePet
                     Row("設定與紀錄", Store.Dir, open)),
                 Label("關於"),
                 T(Program.AppName + " v" + Program.Version, "t-body-sm", null, FontWeights.Medium),
-                T("角色、動作示範與說明改寫自 Noodle（© 2026 Pete Cybriwsky，MIT 授權）。", "t-caption", new Thickness(0, 4, 0, 0)));
+                T("非官方的 Windows 改寫版：角色、動作示範與說明來自 Noodle（© 2026 Pete Cybriwsky，MIT 授權），與原作者無關，也未經原作者背書。喝水動作、提醒和行事曆功能是這個版本另外加的。",
+                    "t-caption", new Thickness(0, 4, 0, 0)),
+                T("伸展動作只是一般的活動建議，不能取代醫療建議；做的時候覺得痛或不舒服就停下來，有傷病請先問醫師或物理治療師。",
+                    "t-caption", new Thickness(0, 8, 0, 0)),
+                T("Claude、Claude Code 是 Anthropic 的商標；Google、Google 月曆是 Google 的商標。本程式與 Anthropic、Google 沒有關係。",
+                    "t-caption", new Thickness(0, 8, 0, 0)),
+                licenses);
+        }
+
+        // 授權全文：編進 exe 的 LICENSE 與 Noodle 原始授權（MIT 要求連同執行檔一起附上）
+        internal FrameworkElement LicenseView()
+        {
+            var text = new StackPanel();
+            foreach (var part in new[] { new[] { "拉麵（noodle-pet）", "LICENSE.txt" }, new[] { "Noodle（原作）", "LICENSE-noodle.txt" } })
+            {
+                string body;
+                try { using (var r = new System.IO.StreamReader(Res.Open(part[1]), System.Text.Encoding.UTF8)) body = r.ReadToEnd().Trim(); }
+                catch (Exception e) { Store.LogError(e); body = "讀不到授權檔：" + e.Message; }
+                // 授權檔是 80 字寬硬換行：段落接成一行，讓它照視窗寬度自動換行（版權行維持各自一行）
+                body = string.Join("\n\n", body.Replace("\r\n", "\n").Split(new[] { "\n\n" }, StringSplitOptions.None)
+                    .Select(p => p.StartsWith("Copyright") ? p : p.Replace('\n', ' ')));
+                text.Children.Add(T(part[0], "t-eyebrow", new Thickness(0, text.Children.Count == 0 ? 0 : 24, 0, 8)));
+                text.Children.Add(new TextBlock { Text = body, Style = Theme.Style("t-mono"), TextWrapping = TextWrapping.Wrap, Foreground = Theme.Brush("ink-muted") });
+            }
+            // 可用 Tab 移進來、方向鍵捲動
+            var scroll = new ScrollViewer { Content = text, MaxHeight = 340, Padding = new Thickness(16, 12, 16, 12), Focusable = true,
+                FocusVisualStyle = Theme.Style("focus-visual"), VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+            AutomationProperties.SetName(scroll, "授權條款全文");
+            var source = Btn("開啟 Noodle 原始碼", "button-secondary", () => OpenUrl("https://github.com/pcybriwsky/noodle"));
+            source.HorizontalAlignment = HorizontalAlignment.Left;
+            source.Margin = new Thickness(0, 12, 0, 0);
+            var wrap = new StackPanel();
+            wrap.Children.Add(new Border { Background = Theme.Brush("surface-1"), BorderBrush = Theme.Brush("hairline"), BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(8), Child = scroll });
+            wrap.Children.Add(source);
+            return wrap;
         }
 
         // 從設定檔重新帶入所有欄位（設定檔被手動改、或別的地方改了設定時）

@@ -72,9 +72,10 @@ namespace NoodlePet
                     settings.Go(id);
                     Save((FrameworkElement)settings.Content, "settings-" + id, 920, 1500, "#010102");
                 }
+                Save(settings.LicenseView(), "license", 592, 0, "#010102");
                 brain.Calendar.Link = new CalendarLink { url = "https://script.google.com/macros/s/AKfycbx0000000000000000000000000/exec", token = "demo" };
                 brain.Calendar.Calendars = new System.Collections.Generic.List<CalInfo> {
-                    new CalInfo { Id = "bryan@example.com", Name = "bryan@example.com", Primary = true },
+                    new CalInfo { Id = "me@example.com", Name = "me@example.com", Primary = true },
                     new CalInfo { Id = "work@example.com", Name = "work@example.com" },
                     new CalInfo { Id = "zh-tw.taiwan#holiday@group.v.calendar.google.com", Name = "台灣的節慶假日" } };
                 brain.Calendar.Events = new System.Collections.Generic.List<CalEvent> {
