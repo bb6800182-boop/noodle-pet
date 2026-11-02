@@ -13,7 +13,7 @@ namespace NoodlePet
         readonly NotifyIcon icon = new NotifyIcon();
         readonly Brain brain;
         readonly ContextMenuStrip menu;
-        readonly ToolStripMenuItem info, fixedItem, walkItem, pauseItem, resumeItem, hideItem;
+        readonly ToolStripMenuItem info, nowItem, waterItem, fixedItem, walkItem, pauseItem, resumeItem, hideItem;
         readonly ToolStripMenuItem[] countdownItems;
         readonly ToolStripMenuItem quickTimer, quickPeek;
         string iconFor;
@@ -26,7 +26,8 @@ namespace NoodlePet
             brain = b;
             var title = new ToolStripMenuItem(Program.AppName + " v" + Program.Version) { Enabled = false };
             info = new ToolStripMenuItem("") { Enabled = false };
-            var now = new ToolStripMenuItem("現在做一組", null, (o, e) => brain.NowPlease(null));
+            nowItem = new ToolStripMenuItem("現在做一組", null, (o, e) => brain.NowPlease(null));
+            waterItem = new ToolStripMenuItem("喝了一杯水", null, (o, e) => brain.WaterLogged());
             var hello = new ToolStripMenuItem("打招呼", null, (o, e) => brain.ShowHello());
             fixedItem = new ToolStripMenuItem("固定位置（可拖曳）", null, (o, e) => brain.SetWalking(false));
             walkItem = new ToolStripMenuItem("在工作列上走來走去", null, (o, e) => brain.SetWalking(true));
@@ -76,7 +77,7 @@ namespace NoodlePet
 
             menu = new ContextMenuStrip { Font = new Font("Microsoft JhengHei UI", 9.5f), Renderer = new DarkRenderer(), ShowImageMargin = false, ShowCheckMargin = true };
             menu.Items.AddRange(new ToolStripItem[] {
-                title, info, new ToolStripSeparator(), now, hello, new ToolStripSeparator(), fixedItem, walkItem,
+                title, info, new ToolStripSeparator(), nowItem, waterItem, hello, new ToolStripSeparator(), fixedItem, walkItem,
                 new ToolStripSeparator(), pauseItem, resumeItem, hideItem, demo, new ToolStripSeparator(), settings, quit });
             foreach (ToolStripItem it in menu.Items) Pad(it);
             menu.Opening += (o, e) => Refresh();
@@ -98,6 +99,9 @@ namespace NoodlePet
         public void Refresh()
         {
             info.Text = brain.StatusLine();
+            var missed = brain.MissedExercise;
+            nowItem.Text = missed != null ? "補做剛剛的「" + missed.name + "」" : "現在做一組";
+            waterItem.Visible = brain.Cfg.water || brain.WaterToday > 0;
             fixedItem.Checked = !brain.Walking;
             walkItem.Checked = brain.Walking;
             bool paused = brain.IsPaused;

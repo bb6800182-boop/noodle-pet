@@ -95,6 +95,9 @@ namespace NoodlePet
         bool demo, fullscreen;
         DateTime lastTick = DateTime.Now, today = DateTime.Today, nextAllowed = DateTime.MinValue;
         int ticks;
+        // 沒接到的提醒（沒理、按晚點、喝水時人走開）：半小時內點桌寵會再叫出來，「現在做一組」也先補那組
+        string missedId;   // "water" 或動作 id
+        DateTime missedAt;
 
         public Brain(Store store)
         {
@@ -240,6 +243,7 @@ namespace NoodlePet
         {
             if (why == "claude") return "Claude 還在忙，正好動一下";
             if (why == "manual") return "現在就來一組";
+            if (why == "again") return "補做剛剛那組";
             if (why == "demo") return "示範";
             return "已經坐了 " + Math.Max(1, (int)(ActiveSeconds / 60)) + " 分鐘";
         }
@@ -261,6 +265,7 @@ namespace NoodlePet
             {
                 Store.Log(Current.id, "done", trigger);
                 DoneToday++;
+                if (missedId != null && missedId != "water") missedId = null;
                 ActiveSeconds = 0;
                 nextAllowed = DateTime.Now.AddMinutes(1);
             }
@@ -291,7 +296,7 @@ namespace NoodlePet
         public void Snooze()
         {
             if (Phase != Phase.Nudge) return;
-            if (!demo) { Store.Log(Current.id, "snoozed", trigger); Later(); }
+            if (!demo) { Store.Log(Current.id, "snoozed", trigger); Later(); Missed(Current.id); }
             Phase = Phase.Idle;
             demo = false;
             Pet.SetPose("wave");
@@ -306,7 +311,7 @@ namespace NoodlePet
         public void Ignore()
         {
             if (Phase != Phase.Nudge) return;
-            if (!demo) { Store.Log(Current.id, "ignored", trigger); Later(); }
+            if (!demo) { Store.Log(Current.id, "ignored", trigger); Later(); Missed(Current.id); }
             Phase = Phase.Idle;
             demo = false;
             Bubble.Dismiss();
@@ -327,21 +332,44 @@ namespace NoodlePet
             nextAllowed = DateTime.Now.AddMinutes(Cfg.snoozeMinutes);
         }
 
-        // 現在做一組（id = null 就照輪替）；手動做的也算數
+        void Missed(string id) { missedId = id; missedAt = DateTime.Now; }
+
+        string RecentMissed() { return missedId != null && (DateTime.Now - missedAt).TotalMinutes <= 30 ? missedId : null; }
+
+        // 剛剛沒做的動作（右鍵選單顯示「補做剛剛的…」）
+        public Exercise MissedExercise
+        {
+            get { var id = RecentMissed(); return id == null || id == "water" ? null : All.FirstOrDefault(x => x.id == id); }
+        }
+
+        // 點桌寵：把剛剛沒接到的提醒再叫出來（暫停中不叫）
+        bool Recall()
+        {
+            var id = RecentMissed();
+            if (id == null || IsPaused) return false;
+            missedId = null;   // 叫一次就好；這次又沒接到，會重新記下來
+            if (id == "water") WaterNudge(false, "again");
+            else Nudge("again", id, false);
+            return true;
+        }
+
+        // 現在做一組（id = null 就照輪替，剛剛有沒做的就先補那組）；手動做的也算數
         public void NowPlease(string id)
         {
             if (Phase == Phase.Stretch) return;
             if (Hidden) SetHidden(false);
             if (Phase == Phase.Intro) FinishIntro();
-            Nudge("manual", id, false);
+            var missed = id == null ? MissedExercise : null;
+            Nudge(missed != null ? "again" : "manual", missed != null ? missed.id : id, false);
             StartStretch();
         }
 
         // ---------- 喝水 ----------
 
-        void WaterNudge(bool isDemo)
+        void WaterNudge(bool isDemo, string why = "timer")
         {
             demo = isDemo;
+            trigger = why;
             Phase = Phase.Water;
             Pet.SetPose("drink");
             Bubble.ShowWater(isDemo ? 0 : WaterToday + 1);
@@ -352,8 +380,9 @@ namespace NoodlePet
             if (Phase != Phase.Water) return;
             if (!demo)
             {
-                Store.Log("water", "done", "timer");
+                Store.Log("water", "done", trigger);
                 WaterToday++;
+                if (missedId == "water") missedId = null;
                 WaterSeconds = 0;
                 nextAllowed = DateTime.Now.AddMinutes(1);
             }
@@ -369,7 +398,7 @@ namespace NoodlePet
         public void WaterSnooze()
         {
             if (Phase != Phase.Water) return;
-            if (!demo) { Store.Log("water", "snoozed", "timer"); WaterLater(); }
+            if (!demo) { Store.Log("water", "snoozed", trigger); WaterLater(); Missed("water"); }
             Phase = Phase.Idle;
             demo = false;
             Pet.SetPose("wave");
@@ -380,7 +409,7 @@ namespace NoodlePet
         public void WaterIgnore()
         {
             if (Phase != Phase.Water) return;
-            if (!demo) { Store.Log("water", "ignored", "timer"); WaterLater(); }
+            if (!demo) { Store.Log("water", "ignored", trigger); WaterLater(); Missed("water"); }
             Phase = Phase.Idle;
             demo = false;
             Pet.Sprites.Release("drink");
@@ -389,8 +418,9 @@ namespace NoodlePet
 
         void FinishWater(string outcome)   // away：泡泡開著人就走了
         {
-            Store.Log("water", outcome, "timer");
+            Store.Log("water", outcome, trigger);
             WaterLater();
+            Missed("water");
             Phase = Phase.Idle;
             Pet.Sprites.Release("drink");
             Bubble.Dismiss();
@@ -401,6 +431,21 @@ namespace NoodlePet
         {
             WaterSeconds = Math.Max(0, (Cfg.waterMinutes - Cfg.snoozeMinutes) * 60);
             nextAllowed = DateTime.Now.AddMinutes(Cfg.snoozeMinutes);
+        }
+
+        // 右鍵「喝了一杯水」：錯過提醒、或自己先喝了，補記一杯
+        public void WaterLogged()
+        {
+            if (Phase == Phase.Water && !demo) { WaterDone(); return; }   // 喝水泡泡正開著，就當按了「喝了」
+            Store.Log("water", "done", "manual");
+            WaterToday++;
+            WaterSeconds = 0;
+            if (missedId == "water") missedId = null;
+            tray.Refresh();
+            if (Hidden || fullscreen || Phase != Phase.Idle) return;   // 收起來、全螢幕、或正在提醒別的：只記錄，不打斷
+            Pet.SetPose("wave");
+            Pet.Hop(1);
+            Bubble.ShowDone("記好了！", WaterToday <= 1 ? "今天第一杯水" : "今天第 " + WaterToday + " 杯水了");
         }
 
         // ---------- 自訂提醒、行事曆：桌寵說話 ----------
@@ -555,7 +600,7 @@ namespace NoodlePet
         {
             if (Phase == Phase.Nudge) { if (Bubble.Kind == "nudge") StartStretch(); }
             else if (Phase == Phase.Stretch) Bubble.ToggleSteps();
-            else if (Phase == Phase.Idle) { if (Bubble.Kind == "hello") Bubble.Dismiss(); else ShowHello(); }
+            else if (Phase == Phase.Idle) { if (Bubble.Kind == "hello") Bubble.Dismiss(); else if (!Recall()) ShowHello(); }
         }
 
         public void ShowHello()
