@@ -4,7 +4,7 @@
 
 拉筋的麵：待在桌面上的小桌寵，連續用電腦一段時間就叫你起來伸展、喝水，還會親自示範動作、幫你計時；也會照你設的時間提醒你，或看 Google 月曆提醒你開會。
 
-> **非官方改寫版**：角色、動作示範與說明來自 Pete Cybriwsky 的 [Noodle](https://tonitherigatoni.com/)（[原始碼](https://github.com/pcybriwsky/noodle)，MIT 授權），與原作者無關，也未經原作者背書。Windows 桌寵、喝水動作、提醒和行事曆功能是這個版本另外做的。
+> **非官方改寫版**：角色、動作示範與說明來自 Pete Cybriwsky 的 [Noodle](https://tonitherigatoni.com/)（[原始碼](https://github.com/pcybriwsky/noodle)，MIT 授權），與原作者無關，也未經原作者背書。Windows 桌寵、喝水動作、提醒和行事曆功能是這個版本另外做的。想看 Pete 更多的作品：[Instagram @_re_pete](https://www.instagram.com/_re_pete/)。
 
 ## 使用
 

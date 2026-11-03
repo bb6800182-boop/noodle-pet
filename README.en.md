@@ -4,7 +4,7 @@
 
 A little desktop pet for Windows. After you've been at the computer for a while, it pops up to get you stretching and drinking water, demonstrates the exercise itself, and times it for you. It can also pop up with reminders you set, and check your Google Calendar to remind you before meetings. The name is a pun: 拉麵 means ramen ("pulled noodles"), and 拉 also means "to stretch."
 
-> **Unofficial port.** The characters, exercise demos and instructions come from [Noodle](https://tonitherigatoni.com/) by Pete Cybriwsky ([source](https://github.com/pcybriwsky/noodle), MIT License). This project is not affiliated with or endorsed by the original author. The Windows desktop pet, the drinking animation, and the reminder and calendar features were added in this version.
+> **Unofficial port.** The characters, exercise demos and instructions come from [Noodle](https://tonitherigatoni.com/) by Pete Cybriwsky ([source](https://github.com/pcybriwsky/noodle), MIT License). This project is not affiliated with or endorsed by the original author. The Windows desktop pet, the drinking animation, and the reminder and calendar features were added in this version. See more of Pete's work on Instagram: [@_re_pete](https://www.instagram.com/_re_pete/).
 
 The interface is in Traditional Chinese. Below, menu and button names are given in English, followed by the Chinese label.
 
