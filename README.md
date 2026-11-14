@@ -68,7 +68,7 @@ node tools\make-drink.mjs assets\figures
 
 1. `build.cmd` 編譯，確認 `src/Program.cs` 的版本號。
 2. 在 GitHub 的 Releases 建一筆新的 Release：tag 用 `v版本號`（例如 `v1.1.2`），附上 `dist\noodle-pet.exe`，寫上更新內容和 exe 的 SHA-256（PowerShell：`Get-FileHash dist\noodle-pet.exe`）。不要勾「Pre-release」，不然「最新版」的下載連結不會換到這一版。
-3. 介紹頁和 README 的下載按鈕都連到 `releases/latest/download/noodle-pet.exe`，會自動拿到新版。介紹頁（`site/`，由 C520 專案的 `deploy.ps1` 跟其他作品一起部署）只有內容要改時才需要重新部署。
+3. README 的下載按鈕連到 `releases/latest/download/noodle-pet.exe`，會自動拿到新版。介紹頁（`site/`，由 C520 專案的 `deploy.ps1` 跟其他作品一起部署）只有內容要改時才需要重新部署。
 
 泡泡截圖（`site/shots/`）用 `build.cmd snapshot` 產生，只放泡泡的圖：設定頁的圖會讀到自己電腦上的設定（使用者資料夾路徑、自訂提醒），不要放上網站。
 
