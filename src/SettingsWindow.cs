@@ -41,7 +41,7 @@ namespace NoodlePet
         public SettingsWindow(Brain b)
         {
             brain = b;
-            Title = Program.AppName + " 設定";
+            Title = Program.AppName + L.T(" 設定", " Settings");
             Width = 920;
             Height = 700;
             MinWidth = 780;
@@ -70,7 +70,7 @@ namespace NoodlePet
             head.Children.Add(who);
             DockPanel.SetDock(head, Dock.Top);
             side.Children.Add(head);
-            savedNote = T("改了就會自動儲存", "t-caption", new Thickness(12, 0, 0, 0));
+            savedNote = T(L.T("改了就會自動儲存", "Changes are saved automatically"), "t-caption", new Thickness(12, 0, 0, 0));
             DockPanel.SetDock(savedNote, Dock.Bottom);
             side.Children.Add(savedNote);
             var navList = new StackPanel();
@@ -85,17 +85,17 @@ namespace NoodlePet
             grid.Children.Add(scroller);
             Content = grid;
 
-            AddSection(navList, "remind", "伸展提醒", BuildRemind());
-            AddSection(navList, "moves", "伸展動作", BuildMoves());
-            AddSection(navList, "water", "喝水", BuildWater());
-            AddSection(navList, "reminders", "自訂提醒", BuildReminders());
-            AddSection(navList, "calendar", "Google 月曆", BuildCalendar());
-            AddSection(navList, "pet", "桌寵", BuildPet());
-            AddSection(navList, "quiet", "勿擾", BuildQuiet());
+            AddSection(navList, "remind", L.T("伸展提醒", "Stretch reminders"), BuildRemind());
+            AddSection(navList, "moves", L.T("伸展動作", "Exercises"), BuildMoves());
+            AddSection(navList, "water", L.T("喝水", "Water"), BuildWater());
+            AddSection(navList, "reminders", L.T("自訂提醒", "Custom reminders"), BuildReminders());
+            AddSection(navList, "calendar", L.T("Google 月曆", "Google Calendar"), BuildCalendar());
+            AddSection(navList, "pet", L.T("桌寵", "Pet"), BuildPet());
+            AddSection(navList, "quiet", L.T("勿擾", "Do not disturb"), BuildQuiet());
             AddSection(navList, "claude", "Claude Code", BuildClaude());
-            AddSection(navList, "general", "一般", BuildGeneral());
+            AddSection(navList, "general", L.T("一般", "General"), BuildGeneral());
 
-            savedTimer.Tick += (s, e) => { savedTimer.Stop(); savedNote.Text = "改了就會自動儲存"; };
+            savedTimer.Tick += (s, e) => { savedTimer.Stop(); savedNote.Text = L.T("改了就會自動儲存", "Changes are saved automatically"); };
             SourceInitialized += (s, e) => Native.DarkTitleBar(new WindowInteropHelper(this).Handle);
             PreviewKeyDown += (s, e) => { if (e.Key == Key.Escape) Close(); };
             Closed += (s, e) => { foreach (var p in players) p.Stop(); navPlayer.Stop(); if (waterPlayer != null) waterPlayer.Stop(); };
@@ -189,7 +189,7 @@ namespace NoodlePet
 
         void Saved()
         {
-            savedNote.Text = "已儲存";
+            savedNote.Text = L.T("已儲存", "Saved");
             savedTimer.Stop();
             savedTimer.Start();
         }
@@ -229,7 +229,7 @@ namespace NoodlePet
                 else
                 {
                     box.Tag = "error";
-                    error.Text = "請輸入 " + min + "–" + hi + " 的整數";
+                    error.Text = L.T("請輸入 ", "Enter a whole number from ") + min + "–" + hi + L.T(" 的整數", "");
                     error.Visibility = Visibility.Visible;
                 }
             };
@@ -310,24 +310,24 @@ namespace NoodlePet
         {
             var c = brain.Cfg;
             TextBlock e1 = ErrorText(), e2 = ErrorText(), e3 = ErrorText(), e4 = ErrorText();
-            return Section("伸展提醒", "坐多久叫你起來伸展、叫了沒理怎麼辦。",
+            return Section(L.T("伸展提醒", "Stretch reminders"), L.T("坐多久叫你起來伸展、叫了沒理怎麼辦。", "How long you sit before a reminder, and what happens if you ignore it."),
                 Group(
-                    Row("連續使用多久提醒一次", "一直在用電腦才會累計，離開座位就重新計算。",
-                        Number(() => brain.Cfg.intervalMinutes, v => { brain.Cfg.intervalMinutes = v; Save(); }, 5, () => 240, "分鐘", e1, "提醒間隔（分鐘）"), e1),
-                    Row("離開多久算休息過", "這段時間沒碰鍵盤滑鼠，就從頭計算。",
-                        Number(() => brain.Cfg.breakResetMinutes, v => { brain.Cfg.breakResetMinutes = v; Save(); }, 1, () => 60, "分鐘", e2, "休息判定（分鐘）"), e2),
-                    Row("按「晚點」延後", null,
-                        Number(() => brain.Cfg.snoozeMinutes, v => { brain.Cfg.snoozeMinutes = v; Save(); }, 1, () => 120, "分鐘", e3, "晚點延後（分鐘）"), e3),
-                    Row("沒理它多久自動收起", "滑鼠停在泡泡上的時候不會收。",
-                        Number(() => brain.Cfg.bubbleSeconds, v => { brain.Cfg.bubbleSeconds = v; Save(); }, 10, () => 600, "秒", e4, "泡泡自動收起（秒）"), e4)),
-                Label("提醒的樣子"),
+                    Row(L.T("連續使用多久提醒一次", "Remind after this much use"), L.T("一直在用電腦才會累計，離開座位就重新計算。", "Counts only while you keep using the computer; leaving your seat resets it."),
+                        Number(() => brain.Cfg.intervalMinutes, v => { brain.Cfg.intervalMinutes = v; Save(); }, 5, () => 240, L.T("分鐘", "min"), e1, L.T("提醒間隔（分鐘）", "Reminder interval (minutes)")), e1),
+                    Row(L.T("離開多久算休息過", "Away this long counts as a break"), L.T("這段時間沒碰鍵盤滑鼠，就從頭計算。", "With no keyboard or mouse for this long, the count starts over."),
+                        Number(() => brain.Cfg.breakResetMinutes, v => { brain.Cfg.breakResetMinutes = v; Save(); }, 1, () => 60, L.T("分鐘", "min"), e2, L.T("休息判定（分鐘）", "Break threshold (minutes)")), e2),
+                    Row(L.T("按「晚點」延後", "“Later” snoozes for"), null,
+                        Number(() => brain.Cfg.snoozeMinutes, v => { brain.Cfg.snoozeMinutes = v; Save(); }, 1, () => 120, L.T("分鐘", "min"), e3, L.T("晚點延後（分鐘）", "Snooze (minutes)")), e3),
+                    Row(L.T("沒理它多久自動收起", "Put away if ignored for"), L.T("滑鼠停在泡泡上的時候不會收。", "It stays while the mouse is over the bubble."),
+                        Number(() => brain.Cfg.bubbleSeconds, v => { brain.Cfg.bubbleSeconds = v; Save(); }, 10, () => 600, L.T("秒", "sec"), e4, L.T("泡泡自動收起（秒）", "Bubble auto-hide (seconds)")), e4)),
+                Label(L.T("提醒的樣子", "How reminders look")),
                 Group(
-                    Row("先說「該伸展囉！」再顯示動作", "揮手打招呼約 2 秒，再換成這次的動作。",
-                        Toggle(() => brain.Cfg.announce, v => { brain.Cfg.announce = v; Save(); }, "先說該伸展囉")),
-                    Row("一開始就展開步驟", "動作還不熟的時候很好用。",
-                        Toggle(() => brain.Cfg.expandSteps, v => { brain.Cfg.expandSteps = v; Save(); }, "一開始就展開步驟")),
-                    Row("沒理它時探頭提醒", "20 秒沒反應，牠會從泡泡上緣探頭看你一次。",
-                        Toggle(() => brain.Cfg.peekNudge, v => { brain.Cfg.peekNudge = v; Save(); }, "探頭提醒"))));
+                    Row(L.T("先說「該伸展囉！」再顯示動作", "Say “Time to stretch!” first"), L.T("揮手打招呼約 2 秒，再換成這次的動作。", "It waves for about 2 seconds, then shows the exercise."),
+                        Toggle(() => brain.Cfg.announce, v => { brain.Cfg.announce = v; Save(); }, L.T("先說該伸展囉", "Say time to stretch first"))),
+                    Row(L.T("一開始就展開步驟", "Show the steps right away"), L.T("動作還不熟的時候很好用。", "Handy while the exercises are new to you."),
+                        Toggle(() => brain.Cfg.expandSteps, v => { brain.Cfg.expandSteps = v; Save(); }, L.T("一開始就展開步驟", "Show the steps right away"))),
+                    Row(L.T("沒理它時探頭提醒", "Peek if ignored"), L.T("20 秒沒反應，牠會從泡泡上緣探頭看你一次。", "After 20 seconds with no response, it peeks over the bubble once."),
+                        Toggle(() => brain.Cfg.peekNudge, v => { brain.Cfg.peekNudge = v; Save(); }, L.T("探頭提醒", "Peek reminder")))));
         }
 
         FrameworkElement BuildPet()
@@ -357,19 +357,19 @@ namespace NoodlePet
                 refreshers.Add(() => rb.IsChecked = brain.Cfg.character == c.Id);
                 stage.Children.Add(rb);
             }
-            return Section("桌寵", "挑一隻陪你，滑鼠移上去會跟你揮手。",
+            return Section(L.T("桌寵", "Pet"), L.T("挑一隻陪你，滑鼠移上去會跟你揮手。", "Pick a companion. It waves when the mouse passes over it."),
                 stage,
-                Label("位置與動作"),
+                Label(L.T("位置與動作", "Position and movement")),
                 Group(
-                    Row("位置", "固定位置可以拖到任何地方；走來走去會沿著工作列散步。",
-                        Segments("mode", new[] { new[] { "fixed", "固定位置" }, new[] { "walk", "走來走去" } },
+                    Row(L.T("位置", "Position"), L.T("固定位置可以拖到任何地方；走來走去會沿著工作列散步。", "Fixed can be dragged anywhere; walking strolls along the taskbar."),
+                        Segments("mode", new[] { new[] { "fixed", L.T("固定位置", "Fixed") }, new[] { "walk", L.T("走來走去", "Walking") } },
                             () => brain.Store.State.mode, v => brain.SetWalking(v == "walk"))),
-                    Row("大小", null, SliderControl(0.6, 2.5, 0.1, () => brain.Cfg.petScale,
-                        v => { brain.Cfg.petScale = v; Save(); }, v => Math.Round(v * 100) + "%", "桌寵大小")),
-                    Row("走路速度", "只有走來走去的時候有用。", SliderControl(10, 150, 5, () => brain.Cfg.walkSpeed,
-                        v => { brain.Cfg.walkSpeed = v; Save(); }, v => v < 30 ? "慢" : v < 70 ? "普通" : "快", "走路速度")),
-                    Row("出場方式", "開機、顯示桌寵或換角色的時候。",
-                        Segments("entrance", new[] { new[] { "drop", "掛麵條垂降" }, new[] { "none", "直接出現" } },
+                    Row(L.T("大小", "Size"), null, SliderControl(0.6, 2.5, 0.1, () => brain.Cfg.petScale,
+                        v => { brain.Cfg.petScale = v; Save(); }, v => Math.Round(v * 100) + "%", L.T("桌寵大小", "Pet size"))),
+                    Row(L.T("走路速度", "Walking speed"), L.T("只有走來走去的時候有用。", "Only applies when walking."), SliderControl(10, 150, 5, () => brain.Cfg.walkSpeed,
+                        v => { brain.Cfg.walkSpeed = v; Save(); }, v => v < 30 ? L.T("慢", "Slow") : v < 70 ? L.T("普通", "Normal") : L.T("快", "Fast"), L.T("走路速度", "Walking speed"))),
+                    Row(L.T("出場方式", "Entrance"), L.T("開機、顯示桌寵或換角色的時候。", "At startup, when shown, or when you change character."),
+                        Segments("entrance", new[] { new[] { "drop", L.T("掛麵條垂降", "Drop in on a noodle") }, new[] { "none", L.T("直接出現", "Just appear") } },
                             () => brain.Cfg.entrance, v => { brain.Cfg.entrance = v; Save(); }))));
         }
 
@@ -377,7 +377,7 @@ namespace NoodlePet
         {
             var focusList = new StackPanel { Margin = new Thickness(0, 16, 0, 0) };
             var options = BubbleWindow.FocusOptions.ToList();
-            options.Add(new[] { "custom", "自訂", "自己勾選下面要輪流做的動作。" });
+            options.Add(new[] { "custom", L.T("自訂", "Custom"), L.T("自己勾選下面要輪流做的動作。", "Tick the exercises below to rotate through.") });
             foreach (var f in options)
             {
                 var id = f[0];
@@ -395,8 +395,8 @@ namespace NoodlePet
             refreshers.Add(() => { if (thumbsFor != brain.Cfg.character) BuildExercises(); });
             var group = new Border { Background = Theme.Brush("surface-1"), BorderBrush = Theme.Brush("hairline"), BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(12), Child = exerciseList, Margin = new Thickness(0, 16, 0, 0) };
-            return Section("伸展動作", "選一個重點，提醒時會輪流排適合的動作。",
-                focusList, Label("動作清單"), T("勾選的動作會輪流出現；滑鼠移到動作上可以看示範，按「試做」馬上做一組。", "t-body-sm-subtle"), group);
+            return Section(L.T("伸展動作", "Exercises"), L.T("選一個重點，提醒時會輪流排適合的動作。", "Pick a focus and reminders rotate through exercises that suit it."),
+                focusList, Label(L.T("動作清單", "Exercise list")), T(L.T("勾選的動作會輪流出現；滑鼠移到動作上可以看示範，按「試做」馬上做一組。", "Ticked exercises take turns. Hover over one to see the demo, or press “Try” to do a set now."), "t-body-sm-subtle"), group);
         }
 
         void BuildExercises()
@@ -426,14 +426,14 @@ namespace NoodlePet
                 text.Children.Add(T(ex.instruction, "t-body-sm-subtle", new Thickness(0, 2, 0, 0)));
                 Grid.SetColumn(text, 1);
                 g.Children.Add(text);
-                var tryIt = Btn("試做", "button-secondary", () => brain.NowPlease(ex.id));
-                AutomationProperties.SetName(tryIt, "試做 " + ex.name);
+                var tryIt = Btn(L.T("試做", "Try"), "button-secondary", () => brain.NowPlease(ex.id));
+                AutomationProperties.SetName(tryIt, L.T("試做 ", "Try ") + ex.name);
                 tryIt.VerticalAlignment = VerticalAlignment.Center;
                 tryIt.Margin = new Thickness(0, 0, 16, 0);
                 Grid.SetColumn(tryIt, 2);
                 g.Children.Add(tryIt);
                 var cb = new CheckBox { Style = Theme.Style("check") };
-                AutomationProperties.SetName(cb, "輪流做 " + ex.name);
+                AutomationProperties.SetName(cb, L.T("輪流做 ", "Rotate ") + ex.name);
                 refreshers.Add(() => cb.IsChecked = brain.Enabled().Any(e => e.id == ex.id));
                 cb.IsChecked = brain.Enabled().Any(e => e.id == ex.id);
                 RoutedEventHandler h = (s, e) => ToggleExercise(ex.id, cb);
@@ -462,7 +462,7 @@ namespace NoodlePet
                     loading = true;
                     cb.IsChecked = true;
                     loading = false;
-                    Dialog.Info(this, "至少要留一個動作", "全部取消的話就沒有東西可以輪了。");
+                    Dialog.Info(this, L.T("至少要留一個動作", "Keep at least one exercise"), L.T("全部取消的話就沒有東西可以輪了。", "With none ticked there is nothing to rotate through."));
                     return;
                 }
             }
@@ -476,26 +476,26 @@ namespace NoodlePet
         FrameworkElement BuildQuiet()
         {
             TextBlock err = ErrorText();
-            var from = TimeBox(() => brain.Cfg.quietStart, v => { brain.Cfg.quietStart = v; Save(); }, err, "安靜時段開始");
-            var to = TimeBox(() => brain.Cfg.quietEnd, v => { brain.Cfg.quietEnd = v; Save(); }, err, "安靜時段結束");
+            var from = TimeBox(() => brain.Cfg.quietStart, v => { brain.Cfg.quietStart = v; Save(); }, err, L.T("安靜時段開始", "Quiet hours start"));
+            var to = TimeBox(() => brain.Cfg.quietEnd, v => { brain.Cfg.quietEnd = v; Save(); }, err, L.T("安靜時段結束", "Quiet hours end"));
             var range = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 12, 0, 0) };
             range.Children.Add(from);
-            range.Children.Add(T("到", "t-body-sm-subtle", new Thickness(12, 0, 12, 0)));
+            range.Children.Add(T(L.T("到", "to"), "t-body-sm-subtle", new Thickness(12, 0, 12, 0)));
             ((TextBlock)range.Children[1]).VerticalAlignment = VerticalAlignment.Center;
             range.Children.Add(to);
             var quiet = new StackPanel();
-            quiet.Children.Add(Row("安靜時段", "這段時間不提醒，桌寵照樣在。",
-                Toggle(() => brain.Cfg.quietHours, v => { brain.Cfg.quietHours = v; Save(); }, "安靜時段")));
+            quiet.Children.Add(Row(L.T("安靜時段", "Quiet hours"), L.T("這段時間不提醒，桌寵照樣在。", "No reminders during these hours; the pet stays."),
+                Toggle(() => brain.Cfg.quietHours, v => { brain.Cfg.quietHours = v; Save(); }, L.T("安靜時段", "Quiet hours"))));
             quiet.Children.Add(range);
             quiet.Children.Add(err);
-            return Section("勿擾", "什麼時候先不要打擾你。",
+            return Section(L.T("勿擾", "Do not disturb"), L.T("什麼時候先不要打擾你。", "When to leave you alone."),
                 Group(
-                    Row("通話中不打擾", "有程式在用麥克風或鏡頭時，先不提醒。",
-                        Toggle(() => brain.Cfg.holdDuringCalls, v => { brain.Cfg.holdDuringCalls = v; Save(); }, "通話中不打擾")),
-                    Row("全螢幕時躲起來", "看影片、簡報或玩遊戲時，桌寵和提醒都先收起來。",
-                        Toggle(() => brain.Cfg.hideInFullscreen, v => { brain.Cfg.hideInFullscreen = v; Save(); }, "全螢幕時躲起來")),
+                    Row(L.T("通話中不打擾", "Quiet during calls"), L.T("有程式在用麥克風或鏡頭時，先不提醒。", "No reminders while an app is using the microphone or camera."),
+                        Toggle(() => brain.Cfg.holdDuringCalls, v => { brain.Cfg.holdDuringCalls = v; Save(); }, L.T("通話中不打擾", "Quiet during calls"))),
+                    Row(L.T("全螢幕時躲起來", "Hide in full screen"), L.T("看影片、簡報或玩遊戲時，桌寵和提醒都先收起來。", "The pet and reminders stay away during videos, presentations and games."),
+                        Toggle(() => brain.Cfg.hideInFullscreen, v => { brain.Cfg.hideInFullscreen = v; Save(); }, L.T("全螢幕時躲起來", "Hide in full screen"))),
                     quiet),
-                T("開會時不打擾：在「Google 月曆」設定。這一頁和暫停提醒只管伸展、喝水；自訂提醒和行事曆提醒照常出現。", "t-caption", new Thickness(0, 12, 0, 0)));
+                T(L.T("開會時不打擾：在「Google 月曆」設定。這一頁和暫停提醒只管伸展、喝水；自訂提醒和行事曆提醒照常出現。", "Quiet during meetings is set under Google Calendar. This page and Pause only affect stretch and water reminders; custom and calendar reminders still appear."), "t-caption", new Thickness(0, 12, 0, 0)));
         }
 
         TextBox TimeBox(Func<string> get, Action<string> set, TextBlock error, string name)
@@ -518,7 +518,7 @@ namespace NoodlePet
                 else
                 {
                     box.Tag = "error";
-                    error.Text = "時間請用 24 小時制，例如 22:00";
+                    error.Text = L.T("時間請用 24 小時制，例如 22:00", "Use 24-hour time, for example 22:00");
                     error.Visibility = Visibility.Visible;
                 }
             };
@@ -546,19 +546,19 @@ namespace NoodlePet
             claudeNotes = T("", "t-caption", new Thickness(0, 4, 0, 0));
             claudeNotes.Foreground = Theme.Brush("semantic-danger");
             var statusRow = new StackPanel();
-            statusRow.Children.Add(Row("連動狀態", ClaudeHooks.SettingsPath, status));
+            statusRow.Children.Add(Row(L.T("連動狀態", "Status"), ClaudeHooks.SettingsPath, status));
             statusRow.Children.Add(claudeNotes);
-            return Section("Claude Code", "Claude Code 跑長任務的時候，讓桌寵提早叫你起來動一動。CLI、VS Code、Cursor 和 Claude 桌面版的 Code 分頁都適用。",
+            return Section("Claude Code", L.T("Claude Code 跑長任務的時候，讓桌寵提早叫你起來動一動。CLI、VS Code、Cursor 和 Claude 桌面版的 Code 分頁都適用。", "When Claude Code runs a long task, the pet calls you early for a stretch. Works with the CLI, VS Code, Cursor and the Code tab of the Claude desktop app."),
                 Group(statusRow,
-                    Row("啟用連動", "關掉的話，就算已經連結也不會提早叫。",
-                        Toggle(() => brain.Cfg.claudeHook, v => { brain.Cfg.claudeHook = v; Save(); }, "啟用 Claude Code 連動")),
-                    Row("Claude 忙多久才算長任務", "短的問題不會打擾你。",
-                        Number(() => brain.Cfg.claudeDelaySeconds, v => { brain.Cfg.claudeDelaySeconds = v; Save(); }, 3, () => 600, "秒", e1, "長任務門檻（秒）"), e1),
-                    Row("至少坐了多久才提早叫", "剛做完一組就不會又被叫起來。",
-                        Number(() => brain.Cfg.claudeEarlyMinutes, v => { brain.Cfg.claudeEarlyMinutes = v; Save(); }, 0, () => brain.Cfg.intervalMinutes, "分鐘", e2, "提早叫的最短坐姿時間（分鐘）"), e2),
-                    Row("本機連接埠", "只聽本機 127.0.0.1，不連外網。和別的程式衝突時再換。",
-                        Number(() => brain.Cfg.claudePort, ChangePort, 1024, () => 65535, "", e3, "本機連接埠"), e3)),
-                T("連結時會先顯示要改的內容、確認後才寫入，原本的 settings.json 會備份在同一個資料夾。有用同步腳本管理 .claude 設定的話，記得也同步這次的變更。",
+                    Row(L.T("啟用連動", "Enable"), L.T("關掉的話，就算已經連結也不會提早叫。", "When off, it never calls early, even if linked."),
+                        Toggle(() => brain.Cfg.claudeHook, v => { brain.Cfg.claudeHook = v; Save(); }, L.T("啟用 Claude Code 連動", "Enable Claude Code link"))),
+                    Row(L.T("Claude 忙多久才算長任務", "Claude busy this long counts as a long task"), L.T("短的問題不會打擾你。", "Short questions won't disturb you."),
+                        Number(() => brain.Cfg.claudeDelaySeconds, v => { brain.Cfg.claudeDelaySeconds = v; Save(); }, 3, () => 600, L.T("秒", "sec"), e1, L.T("長任務門檻（秒）", "Long task threshold (seconds)")), e1),
+                    Row(L.T("至少坐了多久才提早叫", "Call early only after sitting this long"), L.T("剛做完一組就不會又被叫起來。", "So you are not called again right after a set."),
+                        Number(() => brain.Cfg.claudeEarlyMinutes, v => { brain.Cfg.claudeEarlyMinutes = v; Save(); }, 0, () => brain.Cfg.intervalMinutes, L.T("分鐘", "min"), e2, L.T("提早叫的最短坐姿時間（分鐘）", "Minimum sitting time for an early call (minutes)")), e2),
+                    Row(L.T("本機連接埠", "Local port"), L.T("只聽本機 127.0.0.1，不連外網。和別的程式衝突時再換。", "Listens on 127.0.0.1 only, nothing external. Change it only if another program uses it."),
+                        Number(() => brain.Cfg.claudePort, ChangePort, 1024, () => 65535, "", e3, L.T("本機連接埠", "Local port")), e3)),
+                T(L.T("連結時會先顯示要改的內容、確認後才寫入，原本的 settings.json 會備份在同一個資料夾。有用同步腳本管理 .claude 設定的話，記得也同步這次的變更。", "Linking shows the changes first and writes only after you confirm; the original settings.json is backed up in the same folder. If you manage .claude settings with a sync script, remember to sync this change too."),
                     "t-caption", new Thickness(0, 12, 0, 0)));
         }
 
@@ -568,11 +568,11 @@ namespace NoodlePet
             string error;
             List<string> notes;
             claudeState = ClaudeHooks.Status(brain.Cfg.claudePort, out error, out notes);
-            if (brain.HookError != null) notes.Insert(0, brain.HookError + "，請換一個連接埠。");
-            if (claudeState == "linked") { claudeBadge.Text = "已連結"; claudeDot.Background = Theme.Brush("semantic-success"); claudeButton.Content = "移除連結…"; claudeButton.Style = Theme.Style("button-danger"); }
-            else if (claudeState == "partial") { claudeBadge.Text = "只連了一部分"; claudeDot.Background = Theme.Brush("semantic-danger"); claudeButton.Content = "修好連結…"; claudeButton.Style = Theme.Style("button-primary"); }
-            else if (claudeState == "error") { claudeBadge.Text = "讀不到設定檔"; claudeDot.Background = Theme.Brush("semantic-danger"); claudeButton.Content = "重新檢查"; claudeButton.Style = Theme.Style("button-secondary"); notes.Insert(0, error); }
-            else { claudeBadge.Text = "未連結"; claudeDot.Background = Theme.Brush("ink-subtle"); claudeButton.Content = "連結 Claude Code…"; claudeButton.Style = Theme.Style("button-primary"); }
+            if (brain.HookError != null) notes.Insert(0, brain.HookError + L.T("，請換一個連接埠。", ". Please choose another port."));
+            if (claudeState == "linked") { claudeBadge.Text = L.T("已連結", "Linked"); claudeDot.Background = Theme.Brush("semantic-success"); claudeButton.Content = L.T("移除連結…", "Remove link…"); claudeButton.Style = Theme.Style("button-danger"); }
+            else if (claudeState == "partial") { claudeBadge.Text = L.T("只連了一部分", "Partly linked"); claudeDot.Background = Theme.Brush("semantic-danger"); claudeButton.Content = L.T("修好連結…", "Repair link…"); claudeButton.Style = Theme.Style("button-primary"); }
+            else if (claudeState == "error") { claudeBadge.Text = L.T("讀不到設定檔", "Can't read settings"); claudeDot.Background = Theme.Brush("semantic-danger"); claudeButton.Content = L.T("重新檢查", "Check again"); claudeButton.Style = Theme.Style("button-secondary"); notes.Insert(0, error); }
+            else { claudeBadge.Text = L.T("未連結", "Not linked"); claudeDot.Background = Theme.Brush("ink-subtle"); claudeButton.Content = L.T("連結 Claude Code…", "Link Claude Code…"); claudeButton.Style = Theme.Style("button-primary"); }
             claudeNotes.Text = string.Join("\n", notes);
             claudeNotes.Visibility = notes.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         }
@@ -582,9 +582,9 @@ namespace NoodlePet
             int port = brain.Cfg.claudePort;
             if (claudeState == "error") RefreshClaude();
             else if (claudeState == "linked")
-                ConfirmHooks(port, 0, "移除 Claude Code 連結", "會從 Claude Code 的使用者設定移除桌寵的 hook，其他設定都不動。", "移除", true);
+                ConfirmHooks(port, 0, L.T("移除 Claude Code 連結", "Remove Claude Code link"), L.T("會從 Claude Code 的使用者設定移除桌寵的 hook，其他設定都不動。", "Removes the pet's hooks from Claude Code's user settings. Nothing else is touched. "), L.T("移除", "Remove"), true);
             else
-                ConfirmHooks(port, port, "連結 Claude Code", "會在 Claude Code 的使用者設定加入三個 http hook：送出提示詞、回應結束、回應出錯時通知桌寵。", "寫入設定", false);
+                ConfirmHooks(port, port, L.T("連結 Claude Code", "Link Claude Code"), L.T("會在 Claude Code 的使用者設定加入三個 http hook：送出提示詞、回應結束、回應出錯時通知桌寵。", "Adds three http hooks to Claude Code's user settings, notifying the pet when a prompt is sent, a response ends, or a response fails. "), L.T("寫入設定", "Write settings"), false);
         }
 
         void ChangePort(int v)
@@ -595,60 +595,60 @@ namespace NoodlePet
             string error;
             List<string> notes;
             if (old != v && ClaudeHooks.Status(old, out error, out notes) != "none")
-                ConfirmHooks(old, v, "一起更新 Claude Code 的設定？", "連接埠改了，Claude Code 的 hook 也要換成新的連接埠才會通。", "更新設定", false);
+                ConfirmHooks(old, v, L.T("一起更新 Claude Code 的設定？", "Update Claude Code's settings too?"), L.T("連接埠改了，Claude Code 的 hook 也要換成新的連接埠才會通。", "The port changed, so Claude Code's hooks need the new port to work. "), L.T("更新設定", "Update settings"), false);
             RefreshClaude();
         }
 
         void ConfirmHooks(int removePort, int addPort, string title, string message, string ok, bool danger)
         {
             string before, after, error, backup;
-            if (!ClaudeHooks.Plan(removePort, addPort, out before, out after, out error)) { Dialog.Info(this, "沒辦法修改 settings.json", error); RefreshClaude(); return; }
+            if (!ClaudeHooks.Plan(removePort, addPort, out before, out after, out error)) { Dialog.Info(this, L.T("沒辦法修改 settings.json", "Can't change settings.json"), error); RefreshClaude(); return; }
             var diff = ClaudeHooks.Diff(before ?? "", after);
             if (diff.All(d => d.Key == ' ')) { RefreshClaude(); return; }
-            if (!Dialog.Confirm(this, title, message + "原本的設定會先備份。", Dialog.DiffView(diff, ClaudeHooks.SettingsPath), ok, "取消", danger)) return;
+            if (!Dialog.Confirm(this, title, message + L.T("原本的設定會先備份。", "The original settings are backed up first."), Dialog.DiffView(diff, ClaudeHooks.SettingsPath), ok, L.T("取消", "Cancel"), danger)) return;
             if (ClaudeHooks.Apply(before, after, out backup, out error))
             {
                 RefreshClaude();
                 Saved();
-                savedNote.Text = backup == null ? "已寫入 Claude Code 設定" : "已寫入，舊設定備份好了";
+                savedNote.Text = backup == null ? L.T("已寫入 Claude Code 設定", "Written to Claude Code settings") : L.T("已寫入，舊設定備份好了", "Written; old settings backed up");
             }
-            else Dialog.Info(this, "寫入失敗", error);
+            else Dialog.Info(this, L.T("寫入失敗", "Write failed"), error);
         }
 
         FrameworkElement BuildGeneral()
         {
-            var open = Btn("開啟資料夾", "button-secondary", () =>
+            var open = Btn(L.T("開啟資料夾", "Open folder"), "button-secondary", () =>
             {
-                try { Process.Start("explorer.exe", "\"" + Store.Dir + "\""); } catch (Exception e) { Dialog.Info(this, "打不開資料夾", e.Message); }
+                try { Process.Start("explorer.exe", "\"" + Store.Dir + "\""); } catch (Exception e) { Dialog.Info(this, L.T("打不開資料夾", "Can't open the folder"), e.Message); }
             });
-            var intro = Btn("重看一次", "button-secondary", () => brain.StartIntro());
-            var licenses = Btn("授權資訊…", "button-secondary", () => Dialog.Confirm(this, "授權資訊",
-                "拉麵以 MIT 授權釋出；角色、動作示範與說明來自 Noodle，沿用原作者的 MIT 授權。", LicenseView(), "關閉", null, false));
+            var intro = Btn(L.T("重看一次", "Replay"), "button-secondary", () => brain.StartIntro());
+            var licenses = Btn(L.T("授權資訊…", "Licenses…"), "button-secondary", () => Dialog.Confirm(this, L.T("授權資訊", "Licenses"),
+                L.T("拉麵以 MIT 授權釋出；角色、動作示範與說明來自 Noodle，沿用原作者的 MIT 授權。", "Lamian is released under the MIT License. The characters, exercise demos and instructions come from Noodle, under the original author's MIT License."), LicenseView(), L.T("關閉", "Close"), null, false));
             licenses.HorizontalAlignment = HorizontalAlignment.Left;
             licenses.Margin = new Thickness(0, 16, 0, 0);
             // 聯繫作者、更多軟體：只交給系統的寄信程式和瀏覽器開
-            var mail = Btn("寄信給作者", "button-secondary", () => OpenUrl("mailto:bb6800182@gmail.com?subject="
-                + Uri.EscapeDataString(Program.AppName + " Windows 版意見回饋（v" + Program.Version + "）") + "&body="
-                + Uri.EscapeDataString("（請寫下你的建議；回報問題的話，請說明做了什麼、發生什麼事）\r\n\r\n\r\n\r\n——\r\n"
-                    + Program.AppName + " Windows 版 v" + Program.Version + "\r\n" + Environment.OSVersion.VersionString + "\r\n")));
-            var more = Btn("前往 C520", "button-secondary", () => OpenUrl("https://c520.pages.dev/"));
+            var mail = Btn(L.T("寄信給作者", "Email the author"), "button-secondary", () => OpenUrl("mailto:bb6800182@gmail.com?subject="
+                + Uri.EscapeDataString(Program.AppName + L.T(" Windows 版意見回饋（v", " for Windows feedback (v") + Program.Version + L.T("）", ")")) + "&body="
+                + Uri.EscapeDataString(L.T("（請寫下你的建議；回報問題的話，請說明做了什麼、發生什麼事）\r\n\r\n\r\n\r\n——\r\n", "(Write your suggestion here. For a bug, please say what you did and what happened.)\r\n\r\n\r\n\r\n——\r\n")
+                    + Program.AppName + L.T(" Windows 版 v", " for Windows v") + Program.Version + "\r\n" + Environment.OSVersion.VersionString + "\r\n")));
+            var more = Btn(L.T("前往 C520", "Visit C520"), "button-secondary", () => OpenUrl(L.T("https://c520.pages.dev/", "https://c520.pages.dev/en/")));
             var contact = Group(
-                Row("聯繫作者", "有建議、想要的功能，或遇到問題（bug），都歡迎寫信告訴我：bb6800182@gmail.com", mail),
-                Row("更多軟體", "作者的其他 App 都放在 C520，歡迎去看看。", more));
+                Row(L.T("聯繫作者", "Contact"), L.T("有建議、想要的功能，或遇到問題（bug），都歡迎寫信告訴我：bb6800182@gmail.com", "Suggestions, feature requests or bugs? Send me an email: bb6800182@gmail.com"), mail),
+                Row(L.T("更多軟體", "More apps"), L.T("作者的其他 App 都放在 C520，歡迎去看看。", "My other apps are on C520. Come take a look."), more));
             contact.Margin = new Thickness(0, 16, 0, 0);
-            return Section("一般", null,
+            return Section(L.T("一般", "General"), null,
                 Group(
-                    Row("開機自動啟動", "登入 Windows 後桌寵自己出來。",
-                        Toggle(() => Native.AutoStart, v => Native.AutoStart = v, "開機自動啟動")),
-                    Row("開場導覽", "第一次打開時的介紹和桌面環境檢查。", intro),
-                    Row("設定與紀錄", Store.Dir, open)),
-                Label("關於"),
+                    Row(L.T("開機自動啟動", "Start with Windows"), L.T("登入 Windows 後桌寵自己出來。", "The pet appears after you sign in to Windows."),
+                        Toggle(() => Native.AutoStart, v => Native.AutoStart = v, L.T("開機自動啟動", "Start with Windows"))),
+                    Row(L.T("開場導覽", "Intro tour"), L.T("第一次打開時的介紹和桌面環境檢查。", "The first-run introduction and desk setup check."), intro),
+                    Row(L.T("設定與紀錄", "Settings and logs"), Store.Dir, open)),
+                Label(L.T("關於", "About")),
                 T(Program.AppName + " v" + Program.Version, "t-body-sm", null, FontWeights.Medium),
-                T("非官方的 Windows 改寫版：角色、動作示範與說明來自 Noodle（© 2026 Pete Cybriwsky，MIT 授權），與原作者無關，也未經原作者背書。喝水動作、提醒和行事曆功能是這個版本另外加的。",
+                T(L.T("非官方的 Windows 改寫版：角色、動作示範與說明來自 Noodle（© 2026 Pete Cybriwsky，MIT 授權），與原作者無關，也未經原作者背書。喝水動作、提醒和行事曆功能是這個版本另外加的。", "An unofficial Windows port: the characters, exercise demos and instructions come from Noodle (© 2026 Pete Cybriwsky, MIT License). Not affiliated with or endorsed by the original author. The water animation, reminders and calendar features were added in this version."),
                     "t-caption", new Thickness(0, 4, 0, 0)),
-                T("伸展動作只是一般的活動建議，不能取代醫療建議；做的時候覺得痛或不舒服就停下來，有傷病請先問醫師或物理治療師。",
+                T(L.T("伸展動作只是一般的活動建議，不能取代醫療建議；做的時候覺得痛或不舒服就停下來，有傷病請先問醫師或物理治療師。", "The stretches are general activity suggestions, not medical advice. Stop if anything hurts or feels wrong; if you have an injury or condition, ask a doctor or physiotherapist first."),
                     "t-caption", new Thickness(0, 8, 0, 0)),
-                T("Claude、Claude Code 是 Anthropic 的商標；Google、Google 月曆是 Google 的商標。本程式與 Anthropic、Google 沒有關係。",
+                T(L.T("Claude、Claude Code 是 Anthropic 的商標；Google、Google 月曆是 Google 的商標。本程式與 Anthropic、Google 沒有關係。", "Claude and Claude Code are trademarks of Anthropic; Google and Google Calendar are trademarks of Google. This program is not affiliated with Anthropic or Google."),
                     "t-caption", new Thickness(0, 8, 0, 0)),
                 licenses,
                 contact);
@@ -658,11 +658,11 @@ namespace NoodlePet
         internal FrameworkElement LicenseView()
         {
             var text = new StackPanel();
-            foreach (var part in new[] { new[] { "拉麵（noodle-pet）", "LICENSE.txt" }, new[] { "Noodle（原作）", "LICENSE-noodle.txt" } })
+            foreach (var part in new[] { new[] { L.T("拉麵（noodle-pet）", "Lamian (noodle-pet)"), "LICENSE.txt" }, new[] { L.T("Noodle（原作）", "Noodle (original)"), "LICENSE-noodle.txt" } })
             {
                 string body;
                 try { using (var r = new System.IO.StreamReader(Res.Open(part[1]), System.Text.Encoding.UTF8)) body = r.ReadToEnd().Trim(); }
-                catch (Exception e) { Store.LogError(e); body = "讀不到授權檔：" + e.Message; }
+                catch (Exception e) { Store.LogError(e); body = L.T("讀不到授權檔：", "Can't read the license file: ") + e.Message; }
                 // 授權檔是 80 字寬硬換行：段落接成一行，讓它照視窗寬度自動換行（版權行維持各自一行）
                 body = string.Join("\n\n", body.Replace("\r\n", "\n").Split(new[] { "\n\n" }, StringSplitOptions.None)
                     .Select(p => p.StartsWith("Copyright") ? p : p.Replace('\n', ' ')));
@@ -672,8 +672,8 @@ namespace NoodlePet
             // 可用 Tab 移進來、方向鍵捲動
             var scroll = new ScrollViewer { Content = text, MaxHeight = 340, Padding = new Thickness(16, 12, 16, 12), Focusable = true,
                 FocusVisualStyle = Theme.Style("focus-visual"), VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
-            AutomationProperties.SetName(scroll, "授權條款全文");
-            var source = Btn("開啟 Noodle 原始碼", "button-secondary", () => OpenUrl("https://github.com/pcybriwsky/noodle"));
+            AutomationProperties.SetName(scroll, L.T("授權條款全文", "Full license text"));
+            var source = Btn(L.T("開啟 Noodle 原始碼", "Open Noodle source"), "button-secondary", () => OpenUrl("https://github.com/pcybriwsky/noodle"));
             source.HorizontalAlignment = HorizontalAlignment.Left;
             source.Margin = new Thickness(0, 12, 0, 0);
             var wrap = new StackPanel();

@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lamian | A Windows desktop pet that gets you stretching and drinking water</title>
+<meta name="description" content="A little pet on your desktop: after a while at the computer it gets you up to stretch and drink water, demonstrates the exercise and times it. It can also remind you at times you set, or watch Google Calendar for meetings. Free and open source; an unofficial Windows port of Noodle.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Lamian | A Windows desktop pet that gets you stretching and drinking water">
+<meta property="og:description" content="Sitting too long? It pops up, gets you stretching and drinking water, and shows you how. Free and open source.">
+<meta property="og:url" content="https://c520.pages.dev/lamian/en/">
+<meta property="og:image" content="https://c520.pages.dev/lamian/icon-512.png">
+<link rel="alternate" hreflang="zh-Hant" href="https://c520.pages.dev/lamian/">
+<link rel="alternate" hreflang="en" href="https://c520.pages.dev/lamian/en/">
+<link rel="canonical" href="https://c520.pages.dev/lamian/en/">
+<meta name="theme-color" content="#F7F8F8">
+<meta name="color-scheme" content="light">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<style>
+:root {
+  color-scheme: light;
+  --primary: #5E6AD2;
+  --primary-hover: #4F5AC2;
+  --on-primary: #FFFFFF;
+  --accent-text: #4B55C0;
+  --tint: #ECEDFA;
+  --canvas: #F7F8F8;
+  --surface-1: #FFFFFF;
+  --surface-2: #F1F2F4;
+  --hairline: #E4E6EA;
+  --hairline-strong: #D0D6E0;
+  --ink: #1B1C1E;
+  --ink-muted: #3C4149;
+  --ink-subtle: #62666D;
+  --shot-bg: #3A4150;   --font: "Segoe UI", "Microsoft JhengHei UI", "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", sans-serif;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 24px;
+  --s-xs: 8px;
+  --s-sm: 12px;
+  --s-md: 16px;
+  --s-lg: 20px;
+  --s-xl: 24px;
+  --s-xxl: 32px;
+  font: 400 15px/1.6 var(--font);
+  background: var(--canvas);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+h1, h2, h3, p, ol, ul, figure { margin: 0; }
+img { max-width: 100%; }
+a { color: var(--accent-text); text-underline-offset: 4px; }
+a:focus-visible, summary:focus-visible, .btn:focus-visible { outline: 3px solid var(--accent-text); outline-offset: 3px; }
+.wrap { max-width: 960px; margin-inline: auto; padding-inline: var(--s-md); }
+.skip { position: absolute; left: 10px; top: 10px; z-index: 9; padding: 10px 16px; border-radius: 999px; background: var(--primary); color: var(--on-primary); transform: translateY(-200%); }
+.skip:focus { transform: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+.ic { width: 22px; height: 22px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+.top { display: flex; align-items: center; gap: var(--s-md); min-height: 64px; border-bottom: 1px solid var(--hairline); }
+.home { display: inline-flex; align-items: center; min-height: 44px; padding-right: var(--s-md); border-right: 1px solid var(--hairline-strong); font: 500 17px/1 Georgia, serif; font-variant-numeric: lining-nums; color: var(--ink-subtle); text-decoration: none; }
+.home:hover { color: var(--ink); }
+.brand { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; font-weight: 600; }
+.brand img { width: 32px; height: 32px; border-radius: 8px; }
+.lang { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; color: var(--ink-subtle); font-size: 14px; text-decoration: none; }
+.lang:hover { color: var(--ink); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 20px; border: 1px solid var(--primary); border-radius: 999px; background: var(--primary); color: var(--on-primary); font: 600 15px/1.2 var(--font); text-decoration: none; white-space: nowrap; }
+.btn:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+.btn.ghost { background: var(--surface-1); color: var(--ink); border-color: var(--hairline-strong); }
+.btn.ghost:hover { background: var(--surface-2); }
+.top .btn { min-height: 40px; padding: 0 16px; font-size: 14px; }
+
+.hero { display: grid; grid-template-columns: auto 1fr; gap: var(--s-xxl); align-items: center; padding-block: 48px 40px; }
+.hero-art { display: grid; place-items: center; width: 184px; height: 184px; border-radius: 50%; background: var(--tint); }
+.hero-art img { width: 168px; height: 168px; }
+.eyebrow { color: var(--accent-text); font-size: 13px; font-weight: 600; letter-spacing: .5px; }
+h1 { margin-top: 6px; font-size: 40px; line-height: 1.2; font-weight: 700; letter-spacing: .5px; }
+.lead { margin-top: var(--s-sm); font-size: 20px; line-height: 1.5; color: var(--ink-muted); }
+.actions { display: flex; flex-wrap: wrap; gap: var(--s-sm); margin-top: var(--s-xl); }
+.meta { margin-top: var(--s-sm); color: var(--ink-subtle); font-size: 13px; }
+
+section { padding-block: 36px; border-top: 1px solid var(--hairline); }
+h2 { font-size: 26px; line-height: 1.3; font-weight: 700; }
+.sub { margin-top: 6px; color: var(--ink-subtle); }
+.story { margin-top: var(--s-lg); padding: var(--s-xl); border-radius: var(--r-lg); background: var(--surface-1); border: 1px solid var(--hairline); font-size: 17px; line-height: 1.8; }
+.story p + p { margin-top: var(--s-sm); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--s-sm); margin-top: var(--s-lg); }
+.card { padding: var(--s-lg); border-radius: var(--r-lg); background: var(--surface-1); border: 1px solid var(--hairline); }
+.card .ic { color: var(--accent-text); }
+.card h3 { margin-top: 10px; font-size: 17px; line-height: 1.4; }
+.card p { margin-top: 4px; color: var(--ink-subtle); font-size: 14px; }
+
+.shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--s-md); margin-top: var(--s-lg); }
+.shots img { display: block; width: 100%; height: auto; border-radius: var(--r-lg); background: var(--shot-bg); }
+.shots figcaption { margin-top: var(--s-xs); color: var(--ink-muted); font-size: 14px; }
+
+.figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: var(--s-sm); margin-top: var(--s-lg); padding: 0; list-style: none; }
+.figs li { display: flex; flex-direction: column; align-items: center; padding: var(--s-md) var(--s-xs); border-radius: var(--r-lg); background: var(--surface-1); border: 1px solid var(--hairline); text-align: center; }
+.figs img { width: 104px; height: 104px; }
+.figs b { margin-top: 6px; font-size: 15px; }
+.figs span { color: var(--ink-subtle); font-size: 13px; }
+.note { margin-top: var(--s-sm); color: var(--ink-subtle); font-size: 13px; }
+
+.steps { margin-top: var(--s-lg); padding: 0; list-style: none; counter-reset: s; display: grid; gap: var(--s-sm); }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 36px 1fr; gap: var(--s-sm); padding: var(--s-md) var(--s-lg); border-radius: var(--r-lg); background: var(--surface-1); border: 1px solid var(--hairline); }
+.steps li::before { content: counter(s); display: grid; place-items: center; width: 32px; height: 32px; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-weight: 700; }
+.steps b { display: block; }
+.steps span { display: block; color: var(--ink-subtle); font-size: 14px; }
+
+details { margin-top: var(--s-sm); border-radius: var(--r-md); background: var(--surface-1); border: 1px solid var(--hairline); }
+summary { display: flex; align-items: center; justify-content: space-between; gap: var(--s-sm); min-height: 52px; padding: 0 var(--s-lg); cursor: pointer; font-weight: 600; list-style: none; }
+summary::-webkit-details-marker { display: none; }
+summary .ic { transition: transform .15s; color: var(--ink-subtle); }
+details[open] summary .ic { transform: rotate(180deg); }
+.faq-a { padding: 0 var(--s-lg) var(--s-lg); color: var(--ink-muted); }
+.faq-a p + p { margin-top: 8px; }
+code { padding: 1px 6px; border-radius: 4px; background: var(--surface-2); font: 13px/1.6 Consolas, "Cascadia Mono", monospace; word-break: break-all; }
+
+.foot { padding-block: var(--s-xxl); border-top: 1px solid var(--hairline); color: var(--ink-subtle); font-size: 13px; }
+.foot p + p { margin-top: 8px; }
+
+@media (max-width: 720px) {
+  .hero { grid-template-columns: 1fr; gap: var(--s-lg); padding-block: 32px; }
+  .hero-art { width: 128px; height: 128px; }
+  .hero-art img { width: 116px; height: 116px; }
+  h1 { font-size: 34px; }
+  .lead { font-size: 18px; }
+  .story { padding: var(--s-lg); font-size: 16px; }
+}
+@media (max-width: 400px) {
+  .brand span { display: none; }
+  .actions .btn { width: 100%; }
+  .figs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<svg class="defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  <symbol id="i-stretch" viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2"/><path d="M4.5 8.5 12 10l7.5-1.5M12 10v5.5m0 0-3 6m3-6 3 6"/></symbol>
+  <symbol id="i-demo" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="m10 9 5 3-5 3V9Z"/></symbol>
+  <symbol id="i-water" viewBox="0 0 24 24"><path d="M6 4h12l-1.6 15.2a2 2 0 0 1-2 1.8H9.6a2 2 0 0 1-2-1.8L6 4Z"/><path d="M6.7 10.5h10.6"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-8 8H4l1.6-3A8 8 0 1 1 20 12Z"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18m-13 4h2m4 0h2"/></symbol>
+  <symbol id="i-quiet" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3m5 0h5"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5m8-10 5 5-5 5"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+</svg>
+
+<header class="wrap top">
+  <a class="home" href="/en/" aria-label="C520 home">C520</a>
+  <div class="brand"><img src="../icon.svg" alt="" width="32" height="32"><span>Lamian</span></div>
+  <a class="lang" href="../" lang="zh-Hant-TW" hreflang="zh-Hant-TW">中文</a>
+  <a class="btn" href="https://c520-dl.bb6800182.workers.dev/lamian/windows">Download</a>
+</header>
+
+<main id="main" class="wrap" tabindex="-1">
+  <div class="hero">
+    <div class="hero-art"><img src="../figures/rigatoni-wave.svg" alt="Toni the rigatoni pet smiling and waving" width="168" height="168"></div>
+    <div>
+      <p class="eyebrow">A desktop pet for Windows</p>
+      <h1>Lamian</h1>
+      <p class="lead">After too long in your seat, it pops up, gets you stretching and drinking water, shows you the exercise and times it.</p>
+      <div class="actions">
+        <a class="btn" href="https://c520-dl.bb6800182.workers.dev/lamian/windows"><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Download (Windows)</a>
+        <a class="btn ghost" href="https://github.com/bb6800182-boop/noodle-pet" target="_blank" rel="noopener noreferrer"><svg class="ic" aria-hidden="true"><use href="#i-code"/></svg>Source<span class="sr-only"> (GitHub, opens in a new tab)</span></a>
+      </div>
+      <p class="meta">About 16 MB · Windows 10/11 · no install · <a href="https://github.com/bb6800182-boop/noodle-pet/releases" target="_blank" rel="noopener noreferrer">Release notes<span class="sr-only"> (GitHub, opens in a new tab)</span></a><br>Free, MIT open source · an unofficial port of Noodle</p>
+    </div>
+  </div>
+
+  <section aria-labelledby="why">
+    <h2 id="why">Why I made it</h2>
+    <div class="story">
+      <p>The original is <a href="https://www.instagram.com/_re_pete/" target="_blank" rel="noopener noreferrer">Pete Cybriwsky<span class="sr-only"> (Instagram, opens in a new tab)</span></a> 's <a href="https://tonitherigatoni.com/" target="_blank" rel="noopener noreferrer">Noodle<span class="sr-only"> (opens in a new tab)</span></a>: a little noodle that reminds you to stretch and demonstrates the exercise itself.</p>
+      <p>Lamian is its Windows desktop pet version: it stays in a corner of the desktop or walks along the taskbar, and pops up when it's time. It adds water reminders and custom reminders, and watches Google Calendar so it leaves you alone in meetings.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="what">
+    <h2 id="what">What it does</h2>
+    <p class="sub">Everything is under Settings in the right-click menu and is saved automatically.</p>
+    <div class="grid">
+      <div class="card"><svg class="ic" aria-hidden="true"><use href="#i-stretch"/></svg><h3>Stretch reminders</h3><p>After 30 minutes of computer use in a row (adjustable) it calls you. Press Start to follow along while it times you; if you missed it, click the pet to bring it back.</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true"><use href="#i-demo"/></svg><h3>It shows you how</h3><p>Eight stretches: the pet demonstrates while the bubble explains the steps. Pick a focus and reminders rotate through exercises that suit it.</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true"><use href="#i-water"/></svg><h3>Water reminders</h3><p>Every 60 minutes by default it drinks a glass next to you; press “Drank it” to log one. Missed it? Right-click and choose “Had a glass of water”.</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg><h3>Custom reminders</h3><p>Set a time and repeat (every day, weekdays, chosen days or once) and the pet says your line in a speech bubble.</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg><h3>Google Calendar (optional)</h3><p>It leaves you alone in meetings and pops up 10 minutes (adjustable) before an event. It reads through your own Apps Script, read-only.</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true"><use href="#i-quiet"/></svg><h3>Knows when to stay away</h3><p>Five minutes without keyboard or mouse counts as a break. It stays away during calls and full-screen apps, and you can set quiet hours.</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true"><use href="#i-terminal"/></svg><h3>Claude Code (optional)</h3><p>When Claude is busy and you have been sitting for 20 minutes or more, the pet calls you early so you move while you wait.</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="shots">
+    <h2 id="shots">Screens</h2>
+    <p class="sub">Reminders appear as speech bubbles next to the pet. The screenshots show the Chinese interface; the app is in English when Windows is not set to Chinese.</p>
+    <div class="shots">
+      <figure><img src="../shots/nudge.png" alt="Stretch reminder bubble: sitting for 32 minutes, this time a chin tuck, 10 slow reps, about 45 seconds, with Start and Later buttons and a How to link" width="450" height="365" loading="lazy"><figcaption>Stretch reminder: how long you sat and what to do</figcaption></figure>
+      <figure><img src="../shots/stretch.png" alt="Follow-along bubble: shoulder blade squeeze, 15 reps with a 2-second hold, a 0:50 countdown; a note says Claude is done, finish this set then go back; Done and Skip buttons" width="450" height="464" loading="lazy"><figcaption>Follow along: it counts down for you</figcaption></figure>
+      <figure><img src="../shots/water.png" alt="Water reminder bubble: have some water, glass 3 today, with Drank it and Later buttons" width="450" height="327" loading="lazy"><figcaption>Water reminder: press “Drank it” to log a glass</figcaption></figure>
+      <figure><img src="../shots/say.png" alt="Custom reminder bubble at 15:00: it's 3, remember to reply to the vendor, with Got it and Later buttons" width="450" height="331" loading="lazy"><figcaption>Custom reminder: the pet tells you</figcaption></figure>
+      <figure><img src="../shots/event.png" alt="Calendar reminder bubble: product weekly, starts in 10 minutes, 10:28 to 11:28, meeting room 3F, with Got it and Later buttons" width="450" height="327" loading="lazy"><figcaption>Calendar reminder: event name, time and place</figcaption></figure>
+    </div>
+  </section>
+
+  <section aria-labelledby="pets">
+    <h2 id="pets">Pick your companion</h2>
+    <p class="sub">Five characters, switchable any time in Settings. They wave when the mouse passes over.</p>
+    <ul class="figs">
+      <li><img src="../figures/rigatoni-idle.svg" alt="" width="104" height="104" loading="lazy"><b>Toni</b><span>Rigatoni</span></li>
+      <li><img src="../figures/spaghetti-idle.svg" alt="" width="104" height="104" loading="lazy"><b>Sammy</b><span>Spaghetti</span></li>
+      <li><img src="../figures/penne-idle.svg" alt="" width="104" height="104" loading="lazy"><b>Patty</b><span>Penne</span></li>
+      <li><img src="../figures/lasagna-idle.svg" alt="" width="104" height="104" loading="lazy"><b>Lenny</b><span>Lasagna</span></li>
+      <li><img src="../figures/sprout-idle.svg" alt="" width="104" height="104" loading="lazy"><b>Sprout</b><span>Sprout</span></li>
+    </ul>
+    <h3 class="sr-only">Exercise demos</h3>
+    <ul class="figs">
+      <li><img src="../figures/rigatoni-neck-side.svg" alt="" width="104" height="104" loading="lazy"><b>Side neck stretch</b><span>20 sec each side</span></li>
+      <li><img src="../figures/rigatoni-doorway.svg" alt="" width="104" height="104" loading="lazy"><b>Doorway stretch</b><span>30 sec</span></li>
+      <li><img src="../figures/rigatoni-t-ext.svg" alt="" width="104" height="104" loading="lazy"><b>Upper back extension</b><span>10 reps</span></li>
+      <li><img src="../figures/rigatoni-calf-raise.svg" alt="" width="104" height="104" loading="lazy"><b>Calf raise</b><span>20 reps</span></li>
+      <li><img src="../figures/rigatoni-drink.svg" alt="" width="104" height="104" loading="lazy"><b>Water</b><span>Drawn for Lamian</span></li>
+    </ul>
+    <p class="note">The characters and exercise demos come from Noodle by Pete Cybriwsky (MIT License). If you like them, see more of Pete's work on Instagram: <a href="https://www.instagram.com/_re_pete/" target="_blank" rel="noopener noreferrer">@_re_pete<span class="sr-only"> (opens in a new tab)</span></a> .</p>
+  </section>
+
+  <section aria-labelledby="install">
+    <h2 id="install">Download and run</h2>
+    <ol class="steps">
+      <li><div><b>Download noodle-pet.exe</b><span>If the browser says the file is not commonly downloaded, choose Keep. There is nothing to install; put it in a permanent folder (such as Documents) before running it, so “Start with Windows” can find it later.</span></div></li>
+      <li><div><b>First run</b><span>Windows may show “Windows protected your PC”: click “More info” → “Run anyway”. This appears because the program has no paid code-signing certificate.</span></div></li>
+      <li><div><b>Watch the intro</b><span>The pet drops in from the top of the screen, shows you around and checks your desk setup.</span></div></li>
+      <li><div><b>Right-click the pet → Settings</b><span>Set the reminder interval, pick a character and a stretch focus, and turn on Start with Windows.</span></div></li>
+      <li><div><b>(Optional) Link Google Calendar</b><span>Under Settings → Google Calendar, three steps: copy the code, paste it into Apps Script in your own account and deploy, then paste the URL back.</span></div></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="faq">
+    <h2 id="faq">Questions</h2>
+    <details id="faq-env">
+      <summary>What do I need?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+      <div class="faq-a"><p>Windows 10 or 11. It uses the .NET Framework 4.8 built into Windows, so there is nothing else to install.</p></div>
+    </details>
+    <details id="faq-cpu">
+      <summary>Is it heavy on resources?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+      <div class="faq-a"><p>No. Idle, it uses about 0.5% CPU and about 80 MB of memory. Identical animation frames are merged, so it uses almost no CPU when still.</p></div>
+    </details>
+    <details id="faq-privacy">
+      <summary>Where is my data? Is it uploaded?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+      <div class="faq-a"><p>Settings and logs are stored on your computer (<code>%USERPROFILE%\.noodle-pet</code>). No analytics, nothing uploaded.</p><p>Google Calendar is read through Apps Script in your own account, read-only, and the key stays on your computer. The Claude Code link only talks to this machine (127.0.0.1).</p></div>
+    </details>
+    <details id="faq-remove">
+      <summary>How do I remove it?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+      <div class="faq-a"><p>Turn off Start with Windows under Settings → General, right-click the pet and choose Quit, then delete noodle-pet.exe and the <code>%USERPROFILE%\.noodle-pet</code> folder. If you linked Google Calendar, also delete calendar-link.json next to the exe.</p></div>
+    </details>
+    <details id="faq-official">
+      <summary>Is this the official Noodle?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+      <div class="faq-a"><p>No. Lamian is an unofficial Windows port, not affiliated with or endorsed by the author of Noodle. The characters, exercise demos and instructions come from Noodle (MIT License); both license texts are under Settings → General → Licenses.</p></div>
+    </details>
+    <details id="faq-health">
+      <summary>Are the stretches right for everyone?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+      <div class="faq-a"><p>The stretches are general activity suggestions, not medical advice. Stop if anything hurts or feels wrong; if you have an injury or condition, ask a doctor or physiotherapist first.</p></div>
+    </details>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <p>Privacy: no data collected, no analytics. Settings and logs stay on your computer.</p>
+  <p>Characters, exercise demos and instructions come from <a href="https://github.com/pcybriwsky/noodle" target="_blank" rel="noopener noreferrer">Noodle</a> (© 2026 <a href="https://www.instagram.com/_re_pete/" target="_blank" rel="noopener noreferrer">Pete Cybriwsky<span class="sr-only"> (Instagram, opens in a new tab)</span></a>, MIT License). Lamian is an unofficial Windows port, not affiliated with or endorsed by the original author.</p>
+  <p>The stretches are general activity suggestions, not medical advice.</p>
+  <p>This project is not affiliated with Microsoft, Google or Anthropic. Windows is a trademark of Microsoft; Google and Google Calendar are trademarks of Google; Claude and Claude Code are trademarks of Anthropic.</p>
+  <p>Source: <a href="https://github.com/bb6800182-boop/noodle-pet" target="_blank" rel="noopener noreferrer">GitHub</a> (MIT License) · Contact: <a href="mailto:bb6800182@gmail.com">bb6800182@gmail.com</a></p>
+  <p><a href="/en/">More from C520</a></p>
+  <p>© 2026 C520</p>
+</footer>
+<script>
+const openQ = id => { const d = document.getElementById(id); if (d && d.tagName === 'DETAILS') d.open = true; };
+document.querySelectorAll('a[href^="#faq-"]').forEach(a => a.addEventListener('click', () => openQ(a.hash.slice(1))));
+openQ(decodeURIComponent(location.hash.slice(1)));
+</script>
+</body>
+</html>

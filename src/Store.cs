@@ -93,7 +93,7 @@ namespace NoodlePet
         public bool enabled { get; set; }
 
         public const int MaxText = 60;
-        public static readonly string[] DayNames = { "一", "二", "三", "四", "五", "六", "日" };
+        public static readonly string[] DayNames = L.Zh ? new[] { "一", "二", "三", "四", "五", "六", "日" } : new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 
         public Reminder() { id = NewId(); text = ""; time = "09:00"; repeat = "daily"; days = new List<int>(); date = ""; enabled = true; }
 
@@ -213,14 +213,14 @@ namespace NoodlePet
 
         public string RepeatText()
         {
-            if (repeat == "weekdays") return "平日";
-            if (repeat == "days") return days.Count == 7 ? "每天" : "每週" + string.Join("、", days.Select(d => DayNames[d - 1]));
+            if (repeat == "weekdays") return L.T("平日", "Weekdays");
+            if (repeat == "days") return days.Count == 7 ? L.T("每天", "Every day") : L.T("每週", "Weekly ") + string.Join(L.T("、", ", "), days.Select(d => DayNames[d - 1]));
             if (repeat == "once")
             {
                 DateTime d;
-                return TryDate(date, out d) ? d.ToString("M/d", CultureInfo.InvariantCulture) + "（週" + DayNames[Weekday(d) - 1] + "）單次" : "單次";
+                return TryDate(date, out d) ? d.ToString("M/d", CultureInfo.InvariantCulture) + L.T("（週", " (") + DayNames[Weekday(d) - 1] + L.T("）單次", "), once") : L.T("單次", "Once");
             }
-            return "每天";
+            return L.T("每天", "Every day");
         }
     }
 
@@ -295,8 +295,8 @@ namespace NoodlePet
             int skipped = 0;
             Dictionary<string, object> d = null;
             try { d = Json.DeserializeObject(text) as Dictionary<string, object>; }
-            catch (Exception e) { error = "格式錯誤，整份改用預設值（" + e.Message + "）"; c.Clamp(); return c; }
-            if (d == null) { error = "內容不是 JSON 物件，改用預設值"; c.Clamp(); return c; }
+            catch (Exception e) { error = L.T("格式錯誤，整份改用預設值（", "Malformed; using defaults for everything (") + e.Message + L.T("）", ")"); c.Clamp(); return c; }
+            if (d == null) { error = L.T("內容不是 JSON 物件，改用預設值", "The content is not a JSON object; using defaults"); c.Clamp(); return c; }
             foreach (var p in typeof(Config).GetProperties())
             {
                 object v;
@@ -337,9 +337,9 @@ namespace NoodlePet
             }
             c.Clamp();
             var problems = new List<string>();
-            if (bad.Count > 0) problems.Add("這幾個欄位格式不對，先用預設值：" + string.Join("、", bad));
-            if (skipped > 0) problems.Add("自訂提醒有 " + skipped + " 筆格式不對，先略過");
-            error = problems.Count == 0 ? null : string.Join("；", problems);
+            if (bad.Count > 0) problems.Add(L.T("這幾個欄位格式不對，先用預設值：", "These fields are malformed; using defaults: ") + string.Join(L.T("、", ", "), bad));
+            if (skipped > 0) problems.Add(L.T("自訂提醒有 ", "Custom reminders: ") + skipped + L.T(" 筆格式不對，先略過", " malformed, skipped"));
+            error = problems.Count == 0 ? null : string.Join(L.T("；", "; "), problems);
             return c;
         }
 
@@ -411,7 +411,7 @@ namespace NoodlePet
         public static Stream Open(string name)
         {
             var s = typeof(Res).Assembly.GetManifestResourceStream(name);
-            if (s == null) throw new FileNotFoundException("缺少內嵌資源：" + name);
+            if (s == null) throw new FileNotFoundException(L.T("缺少內嵌資源：", "Missing embedded resource: ") + name);
             return s;
         }
 

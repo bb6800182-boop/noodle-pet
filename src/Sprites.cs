@@ -17,11 +17,11 @@ namespace NoodlePet
         public string FullName { get { return Kind + " " + Name; } }
 
         public static readonly Character[] All = {
-            new Character { Id = "rigatoni", Name = "Toni", Kind = "水管麵" },
-            new Character { Id = "spaghetti", Name = "Sammy", Kind = "直麵" },
-            new Character { Id = "penne", Name = "Patty", Kind = "筆管麵" },
-            new Character { Id = "lasagna", Name = "Lenny", Kind = "千層麵" },
-            new Character { Id = "sprout", Name = "Sprout", Kind = "小芽" },
+            new Character { Id = "rigatoni", Name = "Toni", Kind = L.T("水管麵", "Rigatoni") },
+            new Character { Id = "spaghetti", Name = "Sammy", Kind = L.T("直麵", "Spaghetti") },
+            new Character { Id = "penne", Name = "Patty", Kind = L.T("筆管麵", "Penne") },
+            new Character { Id = "lasagna", Name = "Lenny", Kind = L.T("千層麵", "Lasagna") },
+            new Character { Id = "sprout", Name = "Sprout", Kind = L.T("小芽", "Sprout") },
         };
 
         public static Character Get(string id) { return All.FirstOrDefault(c => c.Id == id) ?? All[0]; }

@@ -319,15 +319,15 @@ namespace NoodlePet
 
         public static string Duration(int seconds)
         {
-            if (seconds < 60) return seconds + " 秒";
-            return seconds % 60 == 0 ? seconds / 60 + " 分鐘" : seconds / 60 + " 分 " + seconds % 60 + " 秒";
+            if (seconds < 60) return seconds + L.T(" 秒", " sec");
+            return seconds % 60 == 0 ? seconds / 60 + L.T(" 分鐘", " min") : seconds / 60 + L.T(" 分 ", " min ") + seconds % 60 + L.T(" 秒", " sec");
         }
 
         // 「慢慢做 10 下 · 約 45 秒」；規格本身就是時間（30 秒、2 分鐘）就不重複
         public static string SpecLine(Exercise ex)
         {
             var d = Duration(ex.seconds);
-            return ex.spec == d ? ex.spec : ex.spec + " · 約 " + d;
+            return ex.spec == d ? ex.spec : ex.spec + L.T(" · 約 ", " · about ") + d;
         }
 
         public void ShowHello(string line, string sub)
@@ -336,7 +336,7 @@ namespace NoodlePet
             SetHeader(brain.CharacterInfo.FullName, null);
             Set(title, line);
             Set(body, sub);
-            SetButtons("現在做一組", () => brain.NowPlease(null), "設定", () => { Dismiss(); brain.OpenSettings(null); });
+            SetButtons(L.T("現在做一組", "Stretch now"), () => brain.NowPlease(null), L.T("設定", "Settings"), () => { Dismiss(); brain.OpenSettings(null); });
             Open("hello", 8, Dismiss);
         }
 
@@ -345,7 +345,7 @@ namespace NoodlePet
             if (announce && Native.Motion)
             {
                 Reset();
-                Set(title, "該伸展囉！");
+                Set(title, L.T("該伸展囉！", "Time to stretch!"));
                 Set(body, reason);
                 Open("announce", 0, null);
                 After(1700, () => { if (Kind == "announce") FillNudge(ex, reason, index, total); });
@@ -362,7 +362,7 @@ namespace NoodlePet
             Set(body, ex.instruction);
             Set(spec, SpecLine(ex));
             BuildSteps(ex);
-            SetButtons("開始", brain.StartStretch, "晚點", brain.Snooze);
+            SetButtons(L.T("開始", "Start"), brain.StartStretch, L.T("晚點", "Later"), brain.Snooze);
             ShowSteps(brain.Cfg.expandSteps);
             Open("nudge", brain.Cfg.bubbleSeconds, brain.Ignore);
             if (brain.Cfg.peekNudge && Native.Motion)
@@ -376,13 +376,13 @@ namespace NoodlePet
         {
             bool keepSteps = stepsOpen;
             Reset();
-            SetHeader("跟著做", setNumber > 0 ? "今天第 " + setNumber + " 組" : null);
+            SetHeader(L.T("跟著做", "Follow along"), setNumber > 0 ? L.T("今天第 " + setNumber + " 組", "Set " + setNumber + " today") : null);
             Set(title, ex.name);
             Set(body, ex.instruction);
             timerRow.Visibility = barTrack.Visibility = Visibility.Visible;
             timerSpec.Text = ex.spec;
             BuildSteps(ex);
-            SetButtons("完成", brain.CompleteStretch, "跳過", brain.SkipStretch);
+            SetButtons(L.T("完成", "Done"), brain.CompleteStretch, L.T("跳過", "Skip"), brain.SkipStretch);
             ShowSteps(keepSteps || brain.Cfg.expandSteps);
             stretchTotal = Math.Max(3, seconds);
             stretchEnd = DateTime.Now.AddSeconds(stretchTotal);
@@ -402,7 +402,7 @@ namespace NoodlePet
 
         public void ShowDone(int count)
         {
-            ShowDone("做得好！", count <= 1 ? "今天第一組完成" : "今天第 " + count + " 組了，繼續保持");
+            ShowDone(L.T("做得好！", "Well done!"), count <= 1 ? L.T("今天第一組完成", "First set today") : L.T("今天第 " + count + " 組了，繼續保持", "Set " + count + " today. Keep it up"));
         }
 
         public void ShowDone(string head, string line)
@@ -418,10 +418,10 @@ namespace NoodlePet
         public void ShowWater(int cup)
         {
             Reset();
-            SetHeader("喝水時間", cup > 0 ? "今天第 " + cup + " 杯" : "示範");
-            Set(title, "喝口水吧！");
-            Set(body, "起來倒杯水，順便走一走、看看遠方。");
-            SetButtons("喝了", brain.WaterDone, "晚點", brain.WaterSnooze);
+            SetHeader(L.T("喝水時間", "Water time"), cup > 0 ? L.T("今天第 " + cup + " 杯", "Glass " + cup + " today") : L.T("示範", "Demo"));
+            Set(title, L.T("喝口水吧！", "Have some water!"));
+            Set(body, L.T("起來倒杯水，順便走一走、看看遠方。", "Get up for a glass, take a short walk and look into the distance."));
+            SetButtons(L.T("喝了", "Drank it"), brain.WaterDone, L.T("晚點", "Later"), brain.WaterSnooze);
             Open("water", brain.Cfg.bubbleSeconds, brain.WaterIgnore);
         }
 
@@ -430,18 +430,18 @@ namespace NoodlePet
         {
             Reset();
             var when = s.When(now);
-            SetHeader(s.Eyebrow, more > 0 ? when + " · 還有 " + more + " 則" : when);
+            SetHeader(s.Eyebrow, more > 0 ? L.T(when + " · 還有 " + more + " 則", when + " · " + more + " more") : when);
             Set(title, s.Title);
             Set(body, s.Detail());
-            SetButtons("知道了", brain.SayDone, "晚點", brain.SaySnooze);
+            SetButtons(L.T("知道了", "Got it"), brain.SayDone, L.T("晚點", "Later"), brain.SaySnooze);
             Open("say", 0, null);
         }
 
         public void ShowBye(int minutes)
         {
             Reset();
-            Set(title, "等等見");
-            SetNote(minutes + " 分鐘後再叫你", "clock");
+            Set(title, L.T("等等見", "See you soon"));
+            SetNote(L.T(minutes + " 分鐘後再叫你", "Back in " + minutes + " min"), "clock");
             Open("bye", 0, null);
             After(1400, brain.ByeShown);
         }
@@ -449,8 +449,8 @@ namespace NoodlePet
         // Claude 做完了：泡泡還開著就說一聲
         public void ClaudeDone()
         {
-            if (Kind == "stretch") SetNote("Claude 做完了，做完這組再回去", "check");
-            else if (Kind == "nudge") SetNote("Claude 做完了，還有時間做這組", "check");
+            if (Kind == "stretch") SetNote(L.T("Claude 做完了，做完這組再回去", "Claude is done. Finish this set, then go back"), "check");
+            else if (Kind == "nudge") SetNote(L.T("Claude 做完了，還有時間做這組", "Claude is done. There is still time for this set"), "check");
         }
 
         // ---------- 步驟 ----------
@@ -472,11 +472,11 @@ namespace NoodlePet
             }
             if (!string.IsNullOrEmpty(ex.tip))
             {
-                var tip = Text("注意：" + ex.tip, "t-body-sm");
+                var tip = Text(L.T("注意：", "Tip: ") + ex.tip, "t-body-sm");
                 tip.Margin = new Thickness(0, 12, 0, 0);
                 steps.Children.Add(tip);
             }
-            var safety = Text("動作要輕柔，有疼痛、刺麻或尖銳感就停下來。", "t-caption");
+            var safety = Text(L.T("動作要輕柔，有疼痛、刺麻或尖銳感就停下來。", "Move gently. Stop if you feel pain, tingling or anything sharp."), "t-caption");
             safety.Margin = new Thickness(0, 8, 0, 0);
             steps.Children.Add(safety);
         }
@@ -485,7 +485,7 @@ namespace NoodlePet
         {
             stepsOpen = open;
             steps.Visibility = open ? Visibility.Visible : Visibility.Collapsed;
-            SetLink(open ? "收起步驟" : "怎麼做", ToggleSteps);
+            SetLink(open ? L.T("收起步驟", "Hide steps") : L.T("怎麼做", "How to"), ToggleSteps);
             if (Kind != null) { UpdateLayout(); Follow(); }
         }
 
@@ -503,27 +503,27 @@ namespace NoodlePet
         // ---------- 開場導覽 ----------
 
         static readonly string[][] Intro = {
-            new[] { "嗨，我是 {name}", "{fullName}。你專心工作，我負責提醒你起來動一動。" },
-            new[] { "坐久了才叫你", "連續用電腦 {interval} 分鐘我才會出現；你起身離開，時間就重新算。" },
-            new[] { "你說了算", "按「開始」我會示範動作、幫你計時；按「晚點」就延後。右鍵點我可以暫停或打開設定。" },
-            new[] { "哪裡最需要照顧？", "選一個，我會多排適合的動作，之後也能在設定裡改。" },
-            new[] { "順便檢查一下桌面", "伸展有幫助，好的工作環境幫助更大。重點是這幾個：" },
+            new[] { L.T("嗨，我是 {name}", "Hi, I'm {name}"), L.T("{fullName}。你專心工作，我負責提醒你起來動一動。", "{fullName}. You focus on work; I'll remind you to get up and move.") },
+            new[] { L.T("坐久了才叫你", "I only call after a long sit"), L.T("連續用電腦 {interval} 分鐘我才會出現；你起身離開，時間就重新算。", "I show up after {interval} minutes of computer use in a row. Leave your seat and the count starts over.") },
+            new[] { L.T("你說了算", "You're in charge"), L.T("按「開始」我會示範動作、幫你計時；按「晚點」就延後。右鍵點我可以暫停或打開設定。", "Press “Start” and I demonstrate and time it; “Later” snoozes. Right-click me to pause or open settings.") },
+            new[] { L.T("哪裡最需要照顧？", "What needs the most care?"), L.T("選一個，我會多排適合的動作，之後也能在設定裡改。", "Pick one and I'll favor exercises for it. You can change it later in Settings.") },
+            new[] { L.T("順便檢查一下桌面", "A quick desk check"), L.T("伸展有幫助，好的工作環境幫助更大。重點是這幾個：", "Stretching helps; a good setup helps more. The key points:") },
         };
         public static int IntroCount { get { return Intro.Length; } }
 
         public static readonly string[][] FocusOptions = {
-            new[] { "neck", "肩頸前傾", "頭往前探、肩膀內縮。多做下巴內收、頸部和上背。" },
-            new[] { "hips", "髖部緊繃", "久坐讓骨盆前傾、腰往前拱。多做髖部和腿部。" },
-            new[] { "all", "全身痠僵", "什麼都來一點，八個動作輪流做。" },
+            new[] { "neck", L.T("肩頸前傾", "Forward head and shoulders"), L.T("頭往前探、肩膀內縮。多做下巴內收、頸部和上背。", "Head forward, shoulders rounded. More chin tucks, neck and upper back.") },
+            new[] { "hips", L.T("髖部緊繃", "Tight hips"), L.T("久坐讓骨盆前傾、腰往前拱。多做髖部和腿部。", "Sitting tilts the pelvis and arches the lower back. More hips and legs.") },
+            new[] { "all", L.T("全身痠僵", "Stiff all over"), L.T("什麼都來一點，八個動作輪流做。", "A bit of everything: all eight exercises in turn.") },
         };
 
         static readonly string[][] DeskSetup = {
-            new[] { "螢幕在視線高度。", "螢幕上緣和眼睛同高或略低，距離約一個手臂長。" },
-            new[] { "筆電墊高。", "用支架或書墊高，另外接鍵盤滑鼠。" },
-            new[] { "手肘約 90 度。", "肩膀放鬆、前臂水平，打字時手腕打直。" },
-            new[] { "雙腳踩平。", "踩在地板或腳踏墊上，膝蓋大約和髖部同高。" },
-            new[] { "坐到椅子最裡面。", "讓椅背撐住下背；撐不到就加個小靠墊。" },
-            new[] { "光線從側面來。", "窗戶在螢幕後面或你背後，容易反光、瞇眼。" },
+            new[] { L.T("螢幕在視線高度。", "Screen at eye level."), L.T("螢幕上緣和眼睛同高或略低，距離約一個手臂長。", "Top of the screen at or just below eye height, about an arm's length away.") },
+            new[] { L.T("筆電墊高。", "Raise the laptop."), L.T("用支架或書墊高，另外接鍵盤滑鼠。", "Use a stand or books, with a separate keyboard and mouse.") },
+            new[] { L.T("手肘約 90 度。", "Elbows at about 90 degrees."), L.T("肩膀放鬆、前臂水平，打字時手腕打直。", "Shoulders relaxed, forearms level, wrists straight while typing.") },
+            new[] { L.T("雙腳踩平。", "Feet flat."), L.T("踩在地板或腳踏墊上，膝蓋大約和髖部同高。", "On the floor or a footrest, knees about level with the hips.") },
+            new[] { L.T("坐到椅子最裡面。", "Sit all the way back."), L.T("讓椅背撐住下背；撐不到就加個小靠墊。", "Let the chair support your lower back; add a small cushion if it doesn't reach.") },
+            new[] { L.T("光線從側面來。", "Light from the side."), L.T("窗戶在螢幕後面或你背後，容易反光、瞇眼。", "A window behind the screen or behind you causes glare and squinting.") },
         };
 
         public void ShowIntro(int step)
@@ -574,8 +574,8 @@ namespace NoodlePet
                 dots.Children.Add(new Ellipse { Width = 6, Height = 6, Margin = new Thickness(6, 0, 0, 0),
                     Fill = Theme.Brush(i == step ? "ink" : "hairline-tertiary") });
             bool last = step == Intro.Length - 1;
-            if (last) SetButtons("試做一組", brain.IntroTry, "知道了", brain.FinishIntro);
-            else SetButtons("下一步", () => brain.IntroGo(step + 1), "略過", brain.FinishIntro);
+            if (last) SetButtons(L.T("試做一組", "Try a set"), brain.IntroTry, L.T("知道了", "Got it"), brain.FinishIntro);
+            else SetButtons(L.T("下一步", "Next"), () => brain.IntroGo(step + 1), L.T("略過", "Skip"), brain.FinishIntro);
             Open("intro", 0, null);
         }
 

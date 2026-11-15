@@ -8,12 +8,12 @@ using System.Windows.Interop;
 using System.Windows.Markup;
 using System.Windows.Media;
 
-[assembly: AssemblyTitle("拉麵")]
-[assembly: AssemblyDescription("拉筋的麵：會提醒你起來伸展、喝水的桌面寵物")]
-[assembly: AssemblyProduct("拉麵")]
+[assembly: AssemblyTitle("拉麵 Lamian")]
+[assembly: AssemblyDescription("拉筋的麵：會提醒你起來伸展、喝水的桌面寵物 / A desktop pet that reminds you to stretch and drink water")]
+[assembly: AssemblyProduct("拉麵 Lamian")]
 [assembly: AssemblyCopyright("© 2026 C520；角色與動作素材：Noodle © 2026 Pete Cybriwsky（MIT）")]
-[assembly: AssemblyVersion("1.1.3.0")]
-[assembly: AssemblyFileVersion("1.1.3.0")]
+[assembly: AssemblyVersion("1.2.0.0")]
+[assembly: AssemblyFileVersion("1.2.0.0")]
 // 宣告目標 .NET Framework 4.8：才會啟用新版 WPF 的無障礙行為（例如螢幕閱讀器的即時播報）
 [assembly: TargetFramework(".NETFramework,Version=v4.8", FrameworkDisplayName = ".NET Framework 4.8")]
 
@@ -21,8 +21,8 @@ namespace NoodlePet
 {
     static class Program
     {
-        public const string AppName = "拉麵";
-        public const string Version = "1.1.3";
+        public static readonly string AppName = L.T("拉麵", "Lamian");
+        public const string Version = "1.2.0";
 
         [STAThread]
         static void Main()
@@ -51,7 +51,7 @@ namespace NoodlePet
                     // 一啟動就失敗：記下原因、清掉系統匣圖示，再告訴使用者（這時自己的介面可能還沒好，只能用系統訊息框）
                     Store.LogError(e);
                     if (tray != null) tray.Dispose();
-                    System.Windows.Forms.MessageBox.Show(AppName + " 啟動失敗：" + e.Message + "\n\n詳細內容在 " + Store.Dir + "\\error.log", AppName);
+                    System.Windows.Forms.MessageBox.Show(AppName + L.T(" 啟動失敗：", " failed to start: ") + e.Message + L.T("\n\n詳細內容在 ", "\n\nDetails are in ") + Store.Dir + "\\error.log", AppName);
                     return;
                 }
                 app.Exit += (s, e) => { brain.Shutdown(); tray.Dispose(); };

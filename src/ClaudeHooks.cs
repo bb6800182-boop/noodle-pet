@@ -34,9 +34,9 @@ namespace NoodlePet
             notes = new List<string>();
             if (!Read(out root, out text, out error)) return "error";
             if (root == null) return "none";
-            if (root.ContainsKey("allowedHttpHookUrls")) notes.Add("你的設定有 allowedHttpHookUrls 白名單，要把 " + Url(port, "*") + " 加進去 hook 才會送出。");
+            if (root.ContainsKey("allowedHttpHookUrls")) notes.Add(L.T("你的設定有 allowedHttpHookUrls 白名單，要把 ", "Your settings have an allowedHttpHookUrls allowlist. Add ") + Url(port, "*") + L.T(" 加進去 hook 才會送出。", " to it or the hooks won't be sent."));
             object off;
-            if (root.TryGetValue("disableAllHooks", out off) && off is bool && (bool)off) notes.Add("你的設定把所有 hook 關掉了（disableAllHooks），連結了也不會觸發。");
+            if (root.TryGetValue("disableAllHooks", out off) && off is bool && (bool)off) notes.Add(L.T("你的設定把所有 hook 關掉了（disableAllHooks），連結了也不會觸發。", "Your settings turn all hooks off (disableAllHooks), so linking won't trigger anything."));
             int found = Events.Count(ev => Has(root, ev[0], Url(port, ev[1])));
             return found == Events.Length ? "linked" : found == 0 ? "none" : "partial";
         }
@@ -69,7 +69,7 @@ namespace NoodlePet
             try
             {
                 string now = File.Exists(path) ? File.ReadAllText(path, Encoding.UTF8) : null;
-                if ((now ?? "") != (before ?? "")) { error = "settings.json 在你確認的時候被別的程式改過了，請再開一次確認視窗。"; return false; }
+                if ((now ?? "") != (before ?? "")) { error = L.T("settings.json 在你確認的時候被別的程式改過了，請再開一次確認視窗。", "settings.json was changed by another program while you were confirming. Please open the confirmation again."); return false; }
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
                 if (now != null)
                 {
@@ -94,10 +94,10 @@ namespace NoodlePet
                 text = File.ReadAllText(SettingsPath, Encoding.UTF8);
                 if (text.Trim().Length == 0) return true;
                 root = new JavaScriptSerializer { MaxJsonLength = int.MaxValue }.DeserializeObject(text) as Dictionary<string, object>;
-                if (root == null) { error = "settings.json 不是 JSON 物件，先不動它。"; return false; }
+                if (root == null) { error = L.T("settings.json 不是 JSON 物件，先不動它。", "settings.json is not a JSON object. Leaving it alone."); return false; }
                 return true;
             }
-            catch (Exception e) { error = "讀不懂 settings.json：" + e.Message; return false; }
+            catch (Exception e) { error = L.T("讀不懂 settings.json：", "Can't parse settings.json: ") + e.Message; return false; }
         }
 
         static bool IsOurs(object handler, string url)
@@ -133,10 +133,10 @@ namespace NoodlePet
             object hooks;
             if (!root.TryGetValue("hooks", out hooks) || hooks == null) { hooks = new Dictionary<string, object>(); root["hooks"] = hooks; }
             var d = hooks as IDictionary<string, object>;
-            if (d == null) throw new FormatException("settings.json 的 hooks 不是物件，先不動它。");
+            if (d == null) throw new FormatException(L.T("settings.json 的 hooks 不是物件，先不動它。", "hooks in settings.json is not an object. Leaving it alone."));
             object groups;
             d.TryGetValue(ev, out groups);
-            if (groups != null && !(groups is IList)) throw new FormatException("settings.json 的 hooks." + ev + " 不是陣列，先不動它。");
+            if (groups != null && !(groups is IList)) throw new FormatException(L.T("settings.json 的 hooks.", "hooks.") + ev + L.T(" 不是陣列，先不動它。", " in settings.json is not an array. Leaving it alone."));
             var list = Items(groups).ToList();
             list.Add(new Dictionary<string, object> {
                 { "hooks", new List<object> { new Dictionary<string, object> { { "type", "http" }, { "url", url }, { "timeout", 2 } } } } });

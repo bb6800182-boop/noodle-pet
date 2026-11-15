@@ -11,6 +11,8 @@
 <meta property="og:description" content="坐太久了，它會跳出來叫你起來伸展、喝口水，還會親自示範動作。免費、開源。">
 <meta property="og:url" content="https://c520.pages.dev/lamian/">
 <meta property="og:image" content="https://c520.pages.dev/lamian/icon-512.png">
+<link rel="alternate" hreflang="zh-Hant" href="https://c520.pages.dev/lamian/">
+<link rel="alternate" hreflang="en" href="https://c520.pages.dev/lamian/en/">
 <link rel="canonical" href="https://c520.pages.dev/lamian/">
 <meta name="theme-color" content="#F7F8F8">
 <meta name="color-scheme" content="light">
@@ -68,6 +70,8 @@ a:focus-visible, summary:focus-visible, .btn:focus-visible { outline: 3px solid 
 .home:hover { color: var(--ink); }
 .brand { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; font-weight: 600; }
 .brand img { width: 32px; height: 32px; border-radius: 8px; }
+.lang { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; color: var(--ink-subtle); font-size: 14px; text-decoration: none; }
+.lang:hover { color: var(--ink); }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 20px; border: 1px solid var(--primary); border-radius: 999px; background: var(--primary); color: var(--on-primary); font: 600 15px/1.2 var(--font); text-decoration: none; white-space: nowrap; }
 .btn:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
 .btn.ghost { background: var(--surface-1); color: var(--ink); border-color: var(--hairline-strong); }
@@ -163,6 +167,7 @@ code { padding: 1px 6px; border-radius: 4px; background: var(--surface-2); font:
 <header class="wrap top">
   <a class="home" href="/" aria-label="回 C520 首頁">C520</a>
   <div class="brand"><img src="icon.svg" alt="" width="32" height="32"><span>拉麵</span></div>
+  <a class="lang" href="en/" lang="en" hreflang="en">English</a>
   <a class="btn" href="https://c520-dl.bb6800182.workers.dev/lamian/windows">下載</a>
 </header>
 

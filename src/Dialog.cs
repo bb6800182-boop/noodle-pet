@@ -59,7 +59,7 @@ namespace NoodlePet
 
         public static void Info(Window owner, string title, string message)
         {
-            Confirm(owner, title, message, null, "知道了", null, false);
+            Confirm(owner, title, message, null, L.T("知道了", "Got it"), null, false);
         }
 
         // 差異檢視：只顯示改動和前後 3 行，其餘收成「⋯」
@@ -80,7 +80,7 @@ namespace NoodlePet
             if (gap) lines.Children.Add(Line(' ', "⋯"));
             var scroll = new ScrollViewer { Content = lines, MaxHeight = 340, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
                 VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Padding = new Thickness(0, 8, 0, 8) };
-            AutomationProperties.SetName(scroll, "設定檔差異");
+            AutomationProperties.SetName(scroll, L.T("設定檔差異", "Settings diff"));
             var box = new Border { Background = Theme.Brush("surface-1"), BorderBrush = Theme.Brush("hairline"), BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(8), Child = scroll };
             var wrap = new StackPanel();

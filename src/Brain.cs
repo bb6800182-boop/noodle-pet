@@ -36,11 +36,11 @@ namespace NoodlePet
 
         public static Say Event(CalEvent e)
         {
-            return new Say { Key = "e|" + e.Key, Kind = "event", IsEvent = true, Title = string.IsNullOrEmpty(e.Title) ? "（沒有標題的活動）" : e.Title,
+            return new Say { Key = "e|" + e.Key, Kind = "event", IsEvent = true, Title = string.IsNullOrEmpty(e.Title) ? L.T("（沒有標題的活動）", "(untitled event)") : e.Title,
                 Place = e.Location, Due = DateTime.Now, At = e.Start, End = e.End };
         }
 
-        public string Eyebrow { get { return IsEvent ? "行事曆" : "提醒"; } }
+        public string Eyebrow { get { return IsEvent ? L.T("行事曆", "Calendar") : L.T("提醒", "Reminder"); } }
 
         // 說的當下才算「幾分鐘後開始」「晚了多久」
         public string When(DateTime now)
@@ -48,11 +48,11 @@ namespace NoodlePet
             if (IsEvent)
             {
                 double m = (At - now).TotalMinutes;
-                if (m >= 0.5) return Math.Ceiling(m) + " 分鐘後開始";
-                if (m > -1) return "現在開始";
-                return "已經開始 " + Math.Floor(-m) + " 分鐘";
+                if (m >= 0.5) return L.T(Math.Ceiling(m) + " 分鐘後開始", "Starts in " + Math.Ceiling(m) + " min");
+                if (m > -1) return L.T("現在開始", "Starting now");
+                return L.T("已經開始 " + Math.Floor(-m) + " 分鐘", "Started " + Math.Floor(-m) + " min ago");
             }
-            return now - At > TimeSpan.FromMinutes(2) ? "原定 " + At.ToString("HH:mm") : At.ToString("HH:mm");
+            return now - At > TimeSpan.FromMinutes(2) ? L.T("原定 ", "Was due ") + At.ToString("HH:mm") : At.ToString("HH:mm");
         }
 
         public string Detail()
@@ -102,7 +102,7 @@ namespace NoodlePet
         public Brain(Store store)
         {
             Store = store;
-            All = Res.Json<List<Exercise>>("exercises.json");
+            All = Res.Json<List<Exercise>>(L.Zh ? "exercises.json" : "exercises.en.json");
             DoneToday = store.DoneToday();
             WaterToday = store.WaterToday();
             timer.Tick += (s, e) => Tick();
@@ -133,7 +133,7 @@ namespace NoodlePet
             timer.Start();
             SystemEvents.DisplaySettingsChanged += OnDisplayChanged;
             tray.Refresh();
-            if (Store.ConfigError != null) tray.Warn("設定檔有問題：" + Store.ConfigError);
+            if (Store.ConfigError != null) tray.Warn(L.T("設定檔有問題：", "Problem with the settings file: ") + Store.ConfigError);
         }
 
         void OnDisplayChanged(object sender, EventArgs e)
@@ -164,7 +164,7 @@ namespace NoodlePet
             {
                 ApplyConfig();
                 if (settings != null) settings.Reload();
-                if (Store.ConfigError != null) tray.Warn("設定檔有問題：" + Store.ConfigError);
+                if (Store.ConfigError != null) tray.Warn(L.T("設定檔有問題：", "Problem with the settings file: ") + Store.ConfigError);
             }
             Calendar.Reload(false);   // 連動設定檔在 Dropbox：別台電腦改了也會同步過來
 
@@ -241,11 +241,11 @@ namespace NoodlePet
 
         string ReasonLine(string why)
         {
-            if (why == "claude") return "Claude 還在忙，正好動一下";
-            if (why == "manual") return "現在就來一組";
-            if (why == "again") return "補做剛剛那組";
-            if (why == "demo") return "示範";
-            return "已經坐了 " + Math.Max(1, (int)(ActiveSeconds / 60)) + " 分鐘";
+            if (why == "claude") return L.T("Claude 還在忙，正好動一下", "Claude is still busy. A good time to move");
+            if (why == "manual") return L.T("現在就來一組", "A set right now");
+            if (why == "again") return L.T("補做剛剛那組", "Catching up on the last one");
+            if (why == "demo") return L.T("示範", "Demo");
+            return L.T("已經坐了 " + Math.Max(1, (int)(ActiveSeconds / 60)) + " 分鐘", "Sitting for " + Math.Max(1, (int)(ActiveSeconds / 60)) + " min");
         }
 
         public void StartStretch()
@@ -391,7 +391,7 @@ namespace NoodlePet
             Pet.Hop(1);
             Pet.Sprites.Release("drink");
             int n = demo ? 1 : WaterToday;
-            Bubble.ShowDone("喝好了！", n <= 1 ? "今天第一杯水" : "今天第 " + n + " 杯水了");
+            Bubble.ShowDone(L.T("喝好了！", "Drank it!"), n <= 1 ? L.T("今天第一杯水", "First glass today") : L.T("今天第 " + n + " 杯水了", "Glass " + n + " today"));
             tray.Refresh();
         }
 
@@ -445,7 +445,7 @@ namespace NoodlePet
             if (Hidden || fullscreen || Phase != Phase.Idle) return;   // 收起來、全螢幕、或正在提醒別的：只記錄，不打斷
             Pet.SetPose("wave");
             Pet.Hop(1);
-            Bubble.ShowDone("記好了！", WaterToday <= 1 ? "今天第一杯水" : "今天第 " + WaterToday + " 杯水了");
+            Bubble.ShowDone(L.T("記好了！", "Logged!"), WaterToday <= 1 ? L.T("今天第一杯水", "First glass today") : L.T("今天第 " + WaterToday + " 杯水了", "Glass " + WaterToday + " today"));
         }
 
         // ---------- 自訂提醒、行事曆：桌寵說話 ----------
@@ -613,7 +613,7 @@ namespace NoodlePet
 
         public string TodayLine()
         {
-            return "今天完成 " + DoneToday + " 組" + (Cfg.water || WaterToday > 0 ? "、喝水 " + WaterToday + " 杯" : "");
+            return L.T("今天完成 ", "Today: ") + DoneToday + L.T(" 組", " sets") + (Cfg.water || WaterToday > 0 ? L.T("、喝水 ", ", water ") + WaterToday + L.T(" 杯", "") : "");
         }
 
         public void ShowMenu() { tray.ShowMenu(); }
@@ -622,20 +622,20 @@ namespace NoodlePet
         {
             var now = DateTime.Now;
             DateTime until;
-            if (PausedUntil(out until)) return until.Date > now.Date ? "暫停中，明天再提醒你" : "暫停中，" + until.ToString("HH:mm") + " 再提醒你";
-            if (InQuietHours(now)) return "安靜時段，先不提醒";
-            if (Cfg.holdDuringCalls && Native.MicOrCameraInUse()) return "你在通話中，先不打擾";
+            if (PausedUntil(out until)) return until.Date > now.Date ? L.T("暫停中，明天再提醒你", "Paused. Reminders resume tomorrow") : L.T("暫停中，", "Paused until ") + until.ToString("HH:mm") + L.T(" 再提醒你", "");
+            if (InQuietHours(now)) return L.T("安靜時段，先不提醒", "Quiet hours. No reminders for now");
+            if (Cfg.holdDuringCalls && Native.MicOrCameraInUse()) return L.T("你在通話中，先不打擾", "You're on a call. Not disturbing you");
             var meeting = InMeeting(now);
-            if (meeting != null) return "行事曆上在開會，" + meeting.End.ToString("HH:mm") + " 結束再叫你";
+            if (meeting != null) return L.T("行事曆上在開會，", "In a meeting until ") + meeting.End.ToString("HH:mm") + L.T(" 結束再叫你", "");
             int left = MinutesLeft();
-            return left <= 1 ? "快要叫你起來動一動了" : "再 " + left + " 分鐘叫你起來動一動";
+            return left <= 1 ? L.T("快要叫你起來動一動了", "About to call you for a stretch") : L.T("再 " + left + " 分鐘叫你起來動一動", "Calling you for a stretch in " + left + " min");
         }
 
         int MinutesLeft() { return Math.Max(0, (int)Math.Ceiling((Cfg.intervalMinutes * 60 - ActiveSeconds) / 60)); }
 
         public string StatusLine()
         {
-            string tail = IsPaused ? "暫停中" : Hidden ? "已收起" : "再 " + MinutesLeft() + " 分鐘";
+            string tail = IsPaused ? L.T("暫停中", "Paused") : Hidden ? L.T("已收起", "Hidden") : L.T("再 " + MinutesLeft() + " 分鐘", MinutesLeft() + " min left");
             return TodayLine() + " · " + tail;
         }
 
@@ -773,11 +773,11 @@ namespace NoodlePet
                 if (what == "water") WaterNudge(true);
                 else if (what == "say")
                 {
-                    Speak(new Say { Key = "demo", Kind = "demo", Title = sayText ?? "三點了，記得回覆廠商的信！", Due = now, At = now }, now);
+                    Speak(new Say { Key = "demo", Kind = "demo", Title = sayText ?? L.T("三點了，記得回覆廠商的信！", "It's 3. Remember to reply to the vendor!"), Due = now, At = now }, now);
                     sayText = null;
                 }
                 else if (what == "event")
-                    Speak(new Say { Key = "demo", Kind = "demo", IsEvent = true, Title = "產品週會", Place = "三樓會議室",
+                    Speak(new Say { Key = "demo", Kind = "demo", IsEvent = true, Title = L.T("產品週會", "Product weekly"), Place = L.T("三樓會議室", "Meeting room 3F"),
                         Due = now, At = now.AddMinutes(10), End = now.AddMinutes(70) }, now);
                 else if (what == "intro") { Phase = Phase.Intro; Pet.SetPose("wave"); Bubble.ShowIntro(0); }
                 else if (what == "drop") Pet.Reenter();
@@ -822,8 +822,8 @@ namespace NoodlePet
             else
             {
                 hooks = null;
-                HookError = "本機連接埠 " + hookPort + " 被別的程式占用了";
-                tray.Warn(HookError + "，Claude Code 連動先關閉（可以在設定裡換一個）");
+                HookError = L.T("本機連接埠 ", "Local port ") + hookPort + L.T(" 被別的程式占用了", " is in use by another program");
+                tray.Warn(HookError + L.T("，Claude Code 連動先關閉（可以在設定裡換一個）", ". The Claude Code link is off for now (choose another port in Settings)"));
             }
         }
 

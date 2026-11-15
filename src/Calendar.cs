@@ -93,7 +93,7 @@ namespace NoodlePet
         // 要貼到 Apps Script 的程式碼（金鑰已經填好）
         public static string Script(string token)
         {
-            using (var r = new StreamReader(Res.Open("calendar-relay.gs"), Encoding.UTF8)) return r.ReadToEnd().Replace("{{TOKEN}}", token);
+            using (var r = new StreamReader(Res.Open(L.Zh ? "calendar-relay.gs" : "calendar-relay.en.gs"), Encoding.UTF8)) return r.ReadToEnd().Replace("{{TOKEN}}", token);
         }
 
         // ---------- 連動設定檔 ----------
@@ -113,7 +113,7 @@ namespace NoodlePet
                 try
                 {
                     var d = Json.DeserializeObject(File.ReadAllText(LinkFile, Encoding.UTF8)) as Dictionary<string, object>;
-                    if (d == null) throw new FormatException("內容不是 JSON 物件");
+                    if (d == null) throw new FormatException(L.T("內容不是 JSON 物件", "The content is not a JSON object"));
                     object v;
                     if (d.TryGetValue("url", out v) && v is string) link.url = ((string)v).Trim();
                     if (d.TryGetValue("token", out v) && v is string) link.token = (string)v;
@@ -125,7 +125,7 @@ namespace NoodlePet
                         link.remindMinutes = Convert.ToInt32(v, CultureInfo.InvariantCulture);
                 }
                 catch (IOException) { stamp = DateTime.MaxValue; return false; }   // Dropbox 正在寫：下一輪再讀
-                catch (Exception e) { error = "連動設定檔格式不對（" + e.Message + "）"; }
+                catch (Exception e) { error = L.T("連動設定檔格式不對（", "The link settings file is malformed (") + e.Message + L.T("）", ")"); }
             }
             LinkError = error;
             Apply(link);
@@ -215,19 +215,19 @@ namespace NoodlePet
 
         static void Fetch(string url, string token, List<string> cals, out List<CalEvent> events, out List<CalInfo> infos)
         {
-            if (!ValidUrl(url)) throw new CalendarException("網址不是 Apps Script 網頁應用程式的網址");
+            if (!ValidUrl(url)) throw new CalendarException(L.T("網址不是 Apps Script 網頁應用程式的網址", "The URL is not an Apps Script web app URL"));
             var json = new JavaScriptSerializer();   // 背景執行緒用自己的一份
             var body = json.Serialize(new Dictionary<string, object> { { "token", token }, { "calendars", cals }, { "v", ScriptVersion } });
             Dictionary<string, object> d;
             try { d = json.DeserializeObject(Post(url, body)) as Dictionary<string, object>; }
             catch (ArgumentException) { d = null; }
-            if (d == null) throw new CalendarException("Apps Script 回傳的不是預期的內容：確認程式碼有整段貼上，而且部署的是最新版本");
+            if (d == null) throw new CalendarException(L.T("Apps Script 回傳的不是預期的內容：確認程式碼有整段貼上，而且部署的是最新版本", "Apps Script returned something unexpected. Check that the whole code was pasted and the latest version is deployed"));
             object v;
             if (!d.TryGetValue("ok", out v) || !(v is bool) || !(bool)v)
             {
                 var err = d.TryGetValue("error", out v) ? v as string : null;
-                if (err == "unauthorized") throw new CalendarException("金鑰對不上：請重新複製程式碼貼到 Apps Script，再部署新版本");
-                throw new CalendarException("Apps Script 出錯了：" + Short(err ?? "沒有說明", 120));
+                if (err == "unauthorized") throw new CalendarException(L.T("金鑰對不上：請重新複製程式碼貼到 Apps Script，再部署新版本", "The key doesn't match. Copy the code again, paste it into Apps Script and deploy a new version"));
+                throw new CalendarException(L.T("Apps Script 出錯了：", "Apps Script error: ") + Short(err ?? L.T("沒有說明", "no details"), 120));
             }
             infos = new List<CalInfo>();
             if (d.TryGetValue("calendars", out v) && v is IEnumerable)
@@ -292,11 +292,11 @@ namespace NoodlePet
                 if (code < 300 || code >= 400) return Read(res);
                 Uri next;
                 if (!Uri.TryCreate(res.Headers["Location"] ?? "", UriKind.Absolute, out next) || next.Scheme != Uri.UriSchemeHttps)
-                    throw new CalendarException("Apps Script 轉址的網址不對");
+                    throw new CalendarException(L.T("Apps Script 轉址的網址不對", "Apps Script redirected to an invalid URL"));
                 if (next.Host == "accounts.google.com")
-                    throw new CalendarException("Apps Script 要求登入：部署時「誰可以存取」要選「所有人」");
+                    throw new CalendarException(L.T("Apps Script 要求登入：部署時「誰可以存取」要選「所有人」", "Apps Script asks for sign-in: set “Who has access” to “Anyone” when deploying"));
                 if (!next.Host.EndsWith(".googleusercontent.com", StringComparison.OrdinalIgnoreCase))
-                    throw new CalendarException("Apps Script 轉址到不認識的網站（" + next.Host + "），先停止");
+                    throw new CalendarException(L.T("Apps Script 轉址到不認識的網站（", "Apps Script redirected to an unknown site (") + next.Host + L.T("），先停止", "); stopped"));
                 var get = (HttpWebRequest)WebRequest.Create(next);
                 get.UserAgent = Agent;
                 get.AllowAutoRedirect = false;
@@ -314,9 +314,9 @@ namespace NoodlePet
                 if (r == null) throw;
                 int code = (int)r.StatusCode;
                 r.Dispose();
-                if (code == 401 || code == 403) throw new CalendarException("Apps Script 拒絕存取（" + code + "）：部署時「誰可以存取」要選「所有人」");
-                if (code == 404) throw new CalendarException("找不到這個 Apps Script（404）：確認網址是部署後拿到的 …/exec，而且部署還在");
-                throw new CalendarException("Apps Script 回應錯誤（" + code + "），稍後會自動再試");
+                if (code == 401 || code == 403) throw new CalendarException(L.T("Apps Script 拒絕存取（", "Apps Script denied access (") + code + L.T("）：部署時「誰可以存取」要選「所有人」", "): set “Who has access” to “Anyone” when deploying"));
+                if (code == 404) throw new CalendarException(L.T("找不到這個 Apps Script（404）：確認網址是部署後拿到的 …/exec，而且部署還在", "Apps Script not found (404): check that the URL is the …/exec one from deployment and the deployment still exists"));
+                throw new CalendarException(L.T("Apps Script 回應錯誤（", "Apps Script responded with an error (") + code + L.T("），稍後會自動再試", "); will retry automatically"));
             }
         }
 
@@ -330,7 +330,7 @@ namespace NoodlePet
                 while ((n = s.Read(buf, 0, buf.Length)) > 0)
                 {
                     ms.Write(buf, 0, n);
-                    if (ms.Length > 2 * 1024 * 1024) throw new CalendarException("Apps Script 回傳的資料太大");
+                    if (ms.Length > 2 * 1024 * 1024) throw new CalendarException(L.T("Apps Script 回傳的資料太大", "Apps Script returned too much data"));
                 }
                 return Utf8.GetString(ms.ToArray());
             }
@@ -342,12 +342,12 @@ namespace NoodlePet
             var w = e as WebException;
             if (w != null)
             {
-                if (w.Status == WebExceptionStatus.NameResolutionFailure || w.Status == WebExceptionStatus.ConnectFailure) return "連不上網路，稍後會自動再試";
-                if (w.Status == WebExceptionStatus.Timeout) return "Google 太久沒回應，稍後會自動再試";
-                if (w.Status == WebExceptionStatus.TrustFailure || w.Status == WebExceptionStatus.SecureChannelFailure) return "安全連線失敗（可能是公司網路或防毒擋住了），稍後會自動再試";
+                if (w.Status == WebExceptionStatus.NameResolutionFailure || w.Status == WebExceptionStatus.ConnectFailure) return L.T("連不上網路，稍後會自動再試", "No network. Will retry automatically");
+                if (w.Status == WebExceptionStatus.Timeout) return L.T("Google 太久沒回應，稍後會自動再試", "Google took too long to respond. Will retry automatically");
+                if (w.Status == WebExceptionStatus.TrustFailure || w.Status == WebExceptionStatus.SecureChannelFailure) return L.T("安全連線失敗（可能是公司網路或防毒擋住了），稍後會自動再試", "Secure connection failed (a company network or antivirus may be blocking it). Will retry automatically");
             }
             Store.LogError(e);
-            return "同步失敗：" + Short(e.Message, 120);
+            return L.T("同步失敗：", "Sync failed: ") + Short(e.Message, 120);
         }
 
         // ---------- 查詢 ----------

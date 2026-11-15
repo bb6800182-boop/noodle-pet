@@ -1,4 +1,4 @@
-# 拉麵 Lamian (noodle-pet) v1.1.3
+# 拉麵 Lamian (noodle-pet) v1.2.0
 
 [繁體中文](README.md) | **English**
 
@@ -6,11 +6,11 @@ A little desktop pet for Windows. After you've been at the computer for a while,
 
 > **Unofficial port.** The characters, exercise demos and instructions come from [Noodle](https://tonitherigatoni.com/) by Pete Cybriwsky ([source](https://github.com/pcybriwsky/noodle), MIT License). This project is not affiliated with or endorsed by the original author. The Windows desktop pet, the drinking animation, and the reminder and calendar features were added in this version. See more of Pete's work on Instagram: [@_re_pete](https://www.instagram.com/_re_pete/).
 
-The interface is in Traditional Chinese. Below, menu and button names are given in English, followed by the Chinese label.
+The interface follows the Windows display language: Traditional Chinese on Chinese systems, English everywhere else (since v1.2.0). Below, menu and button names are given in English, followed by the Chinese label.
 
 ## Getting started
 
-Download `noodle-pet.exe` from [Releases](https://github.com/bb6800182-boop/noodle-pet/releases/latest) (the [project page](https://c520.pages.dev/lamian/) has screenshots and setup steps, in Chinese), put it in a folder you'll keep, and run it. There's no installer and nothing else to install: it runs on the .NET Framework 4.8 that comes with Windows 10 and 11. The exe isn't code-signed, so the first time, Windows SmartScreen may say "Windows protected your PC". Click "More info", then "Run anyway".
+Download `noodle-pet.exe` from [Releases](https://github.com/bb6800182-boop/noodle-pet/releases/latest) (the [project page](https://c520.pages.dev/lamian/en/) has screenshots and setup steps), put it in a folder you'll keep, and run it. There's no installer and nothing else to install: it runs on the .NET Framework 4.8 that comes with Windows 10 and 11. The exe isn't code-signed, so the first time, Windows SmartScreen may say "Windows protected your PC". Click "More info", then "Run anyway".
 
 On first launch, the pet drops in from the top of the screen and walks you through a short intro.
 

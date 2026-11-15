@@ -26,32 +26,32 @@ namespace NoodlePet
             brain = b;
             var title = new ToolStripMenuItem(Program.AppName + " v" + Program.Version) { Enabled = false };
             info = new ToolStripMenuItem("") { Enabled = false };
-            nowItem = new ToolStripMenuItem("現在做一組", null, (o, e) => brain.NowPlease(null));
-            waterItem = new ToolStripMenuItem("喝了一杯水", null, (o, e) => brain.WaterLogged());
-            var hello = new ToolStripMenuItem("打招呼", null, (o, e) => brain.ShowHello());
-            fixedItem = new ToolStripMenuItem("固定位置（可拖曳）", null, (o, e) => brain.SetWalking(false));
-            walkItem = new ToolStripMenuItem("在工作列上走來走去", null, (o, e) => brain.SetWalking(true));
-            pauseItem = new ToolStripMenuItem("暫停提醒");
-            pauseItem.DropDownItems.Add("30 分鐘", null, (o, e) => brain.PauseFor(TimeSpan.FromMinutes(30)));
-            pauseItem.DropDownItems.Add("1 小時", null, (o, e) => brain.PauseFor(TimeSpan.FromHours(1)));
-            pauseItem.DropDownItems.Add("2 小時", null, (o, e) => brain.PauseFor(TimeSpan.FromHours(2)));
-            pauseItem.DropDownItems.Add("到明天", null, (o, e) => brain.PauseFor(null));
-            resumeItem = new ToolStripMenuItem("繼續提醒", null, (o, e) => brain.Resume());
-            hideItem = new ToolStripMenuItem("收起桌寵", null, (o, e) => brain.SetHidden(!brain.Hidden));
+            nowItem = new ToolStripMenuItem(L.T("現在做一組", "Stretch now"), null, (o, e) => brain.NowPlease(null));
+            waterItem = new ToolStripMenuItem(L.T("喝了一杯水", "Had a glass of water"), null, (o, e) => brain.WaterLogged());
+            var hello = new ToolStripMenuItem(L.T("打招呼", "Say hi"), null, (o, e) => brain.ShowHello());
+            fixedItem = new ToolStripMenuItem(L.T("固定位置（可拖曳）", "Fixed position (draggable)"), null, (o, e) => brain.SetWalking(false));
+            walkItem = new ToolStripMenuItem(L.T("在工作列上走來走去", "Walk along the taskbar"), null, (o, e) => brain.SetWalking(true));
+            pauseItem = new ToolStripMenuItem(L.T("暫停提醒", "Pause reminders"));
+            pauseItem.DropDownItems.Add(L.T("30 分鐘", "30 minutes"), null, (o, e) => brain.PauseFor(TimeSpan.FromMinutes(30)));
+            pauseItem.DropDownItems.Add(L.T("1 小時", "1 hour"), null, (o, e) => brain.PauseFor(TimeSpan.FromHours(1)));
+            pauseItem.DropDownItems.Add(L.T("2 小時", "2 hours"), null, (o, e) => brain.PauseFor(TimeSpan.FromHours(2)));
+            pauseItem.DropDownItems.Add(L.T("到明天", "Until tomorrow"), null, (o, e) => brain.PauseFor(null));
+            resumeItem = new ToolStripMenuItem(L.T("繼續提醒", "Resume reminders"), null, (o, e) => brain.Resume());
+            hideItem = new ToolStripMenuItem(L.T("收起桌寵", "Hide pet"), null, (o, e) => brain.SetHidden(!brain.Hidden));
 
             // 示範：照 Noodle 的 Film 選單，可以倒數、縮短計時；示範不記錄、不影響輪替
-            var demo = new ToolStripMenuItem("示範");
-            var cd = new ToolStripMenuItem("倒數");
+            var demo = new ToolStripMenuItem(L.T("示範", "Demo"));
+            var cd = new ToolStripMenuItem(L.T("倒數", "Countdown"));
             int[] secs = { 0, 3, 5, 10 };
             countdownItems = new ToolStripMenuItem[secs.Length];
             for (int i = 0; i < secs.Length; i++)
             {
                 int s = secs[i];
-                countdownItems[i] = new ToolStripMenuItem(s == 0 ? "不倒數" : s + " 秒", null, (o, e) => { brain.DemoCountdown = s; Refresh(); });
+                countdownItems[i] = new ToolStripMenuItem(s == 0 ? L.T("不倒數", "No countdown") : s + L.T(" 秒", " sec"), null, (o, e) => { brain.DemoCountdown = s; Refresh(); });
                 cd.DropDownItems.Add(countdownItems[i]);
             }
-            quickTimer = new ToolStripMenuItem("計時縮成 5 秒", null, (o, e) => { brain.DemoQuickTimer = !brain.DemoQuickTimer; Refresh(); });
-            quickPeek = new ToolStripMenuItem("3 秒就探頭", null, (o, e) => { brain.DemoQuickPeek = !brain.DemoQuickPeek; Refresh(); });
+            quickTimer = new ToolStripMenuItem(L.T("計時縮成 5 秒", "Shorten timers to 5 sec"), null, (o, e) => { brain.DemoQuickTimer = !brain.DemoQuickTimer; Refresh(); });
+            quickPeek = new ToolStripMenuItem(L.T("3 秒就探頭", "Peek after 3 sec"), null, (o, e) => { brain.DemoQuickPeek = !brain.DemoQuickPeek; Refresh(); });
             demo.DropDownItems.Add(cd);
             demo.DropDownItems.Add(quickTimer);
             demo.DropDownItems.Add(quickPeek);
@@ -62,18 +62,18 @@ namespace NoodlePet
                 demo.DropDownItems.Add(ex.name, null, (o, e) => brain.Demo(id));
             }
             demo.DropDownItems.Add(new ToolStripSeparator());
-            demo.DropDownItems.Add("開場導覽", null, (o, e) => brain.Demo("intro"));
-            demo.DropDownItems.Add("垂降進場", null, (o, e) => brain.Demo("drop"));
-            demo.DropDownItems.Add("探頭提醒", null, (o, e) => brain.Demo("peek"));
-            demo.DropDownItems.Add("完成慶祝", null, (o, e) => brain.Demo("celebrate"));
-            demo.DropDownItems.Add("Claude 做完了", null, (o, e) => brain.Demo("claude"));
+            demo.DropDownItems.Add(L.T("開場導覽", "Intro tour"), null, (o, e) => brain.Demo("intro"));
+            demo.DropDownItems.Add(L.T("垂降進場", "Drop-in entrance"), null, (o, e) => brain.Demo("drop"));
+            demo.DropDownItems.Add(L.T("探頭提醒", "Peek reminder"), null, (o, e) => brain.Demo("peek"));
+            demo.DropDownItems.Add(L.T("完成慶祝", "Celebration"), null, (o, e) => brain.Demo("celebrate"));
+            demo.DropDownItems.Add(L.T("Claude 做完了", "Claude finished"), null, (o, e) => brain.Demo("claude"));
             demo.DropDownItems.Add(new ToolStripSeparator());
-            demo.DropDownItems.Add("喝水提醒", null, (o, e) => brain.Demo("water"));
-            demo.DropDownItems.Add("自訂提醒", null, (o, e) => brain.Demo("say"));
-            demo.DropDownItems.Add("行事曆提醒", null, (o, e) => brain.Demo("event"));
+            demo.DropDownItems.Add(L.T("喝水提醒", "Water reminder"), null, (o, e) => brain.Demo("water"));
+            demo.DropDownItems.Add(L.T("自訂提醒", "Custom reminders"), null, (o, e) => brain.Demo("say"));
+            demo.DropDownItems.Add(L.T("行事曆提醒", "Calendar reminder"), null, (o, e) => brain.Demo("event"));
 
-            var settings = new ToolStripMenuItem("設定…", null, (o, e) => brain.OpenSettings(null));
-            var quit = new ToolStripMenuItem("結束", null, (o, e) => System.Windows.Application.Current.Shutdown());
+            var settings = new ToolStripMenuItem(L.T("設定…", "Settings…"), null, (o, e) => brain.OpenSettings(null));
+            var quit = new ToolStripMenuItem(L.T("結束", "Quit"), null, (o, e) => System.Windows.Application.Current.Shutdown());
 
             menu = new ContextMenuStrip { Font = new Font("Microsoft JhengHei UI", 9.5f), Renderer = new DarkRenderer(), ShowImageMargin = false, ShowCheckMargin = true };
             menu.Items.AddRange(new ToolStripItem[] {
@@ -100,14 +100,14 @@ namespace NoodlePet
         {
             info.Text = brain.StatusLine();
             var missed = brain.MissedExercise;
-            nowItem.Text = missed != null ? "補做剛剛的「" + missed.name + "」" : "現在做一組";
+            nowItem.Text = missed != null ? L.T("補做剛剛的「" + missed.name + "」", "Catch up: " + missed.name) : L.T("現在做一組", "Stretch now");
             waterItem.Visible = brain.Cfg.water || brain.WaterToday > 0;
             fixedItem.Checked = !brain.Walking;
             walkItem.Checked = brain.Walking;
             bool paused = brain.IsPaused;
             resumeItem.Visible = paused;
-            pauseItem.Text = paused ? "暫停提醒（已暫停）" : "暫停提醒";
-            hideItem.Text = brain.Hidden ? "顯示桌寵" : "收起桌寵";
+            pauseItem.Text = paused ? L.T("暫停提醒（已暫停）", "Pause reminders (paused)") : L.T("暫停提醒", "Pause reminders");
+            hideItem.Text = brain.Hidden ? L.T("顯示桌寵", "Show pet") : L.T("收起桌寵", "Hide pet");
             int[] secs = { 0, 3, 5, 10 };
             for (int i = 0; i < secs.Length; i++) countdownItems[i].Checked = brain.DemoCountdown == secs[i];
             quickTimer.Checked = brain.DemoQuickTimer;
