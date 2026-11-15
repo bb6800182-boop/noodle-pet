@@ -1,4 +1,4 @@
-# 拉麵 Lamian (noodle-pet) v1.1.2
+# 拉麵 Lamian (noodle-pet) v1.1.3
 
 [繁體中文](README.md) | **English**
 

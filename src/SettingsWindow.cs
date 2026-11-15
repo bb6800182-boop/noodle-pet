@@ -626,6 +626,16 @@ namespace NoodlePet
                 "拉麵以 MIT 授權釋出；角色、動作示範與說明來自 Noodle，沿用原作者的 MIT 授權。", LicenseView(), "關閉", null, false));
             licenses.HorizontalAlignment = HorizontalAlignment.Left;
             licenses.Margin = new Thickness(0, 16, 0, 0);
+            // 聯繫作者、更多軟體：只交給系統的寄信程式和瀏覽器開
+            var mail = Btn("寄信給作者", "button-secondary", () => OpenUrl("mailto:bb6800182@gmail.com?subject="
+                + Uri.EscapeDataString(Program.AppName + " Windows 版意見回饋（v" + Program.Version + "）") + "&body="
+                + Uri.EscapeDataString("（請寫下你的建議；回報問題的話，請說明做了什麼、發生什麼事）\r\n\r\n\r\n\r\n——\r\n"
+                    + Program.AppName + " Windows 版 v" + Program.Version + "\r\n" + Environment.OSVersion.VersionString + "\r\n")));
+            var more = Btn("前往 C520", "button-secondary", () => OpenUrl("https://c520.pages.dev/"));
+            var contact = Group(
+                Row("聯繫作者", "有建議、想要的功能，或遇到問題（bug），都歡迎寫信告訴我：bb6800182@gmail.com", mail),
+                Row("更多軟體", "作者的其他 App 都放在 C520，歡迎去看看。", more));
+            contact.Margin = new Thickness(0, 16, 0, 0);
             return Section("一般", null,
                 Group(
                     Row("開機自動啟動", "登入 Windows 後桌寵自己出來。",
@@ -640,7 +650,8 @@ namespace NoodlePet
                     "t-caption", new Thickness(0, 8, 0, 0)),
                 T("Claude、Claude Code 是 Anthropic 的商標；Google、Google 月曆是 Google 的商標。本程式與 Anthropic、Google 沒有關係。",
                     "t-caption", new Thickness(0, 8, 0, 0)),
-                licenses);
+                licenses,
+                contact);
         }
 
         // 授權全文：編進 exe 的 LICENSE 與 Noodle 原始授權（MIT 要求連同執行檔一起附上）
