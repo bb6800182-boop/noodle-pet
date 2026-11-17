@@ -147,6 +147,14 @@ code { padding: 1px 6px; border-radius: 4px; background: var(--surface-2); font:
   .figs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+/* 請我喝杯咖啡（每個介紹頁頁尾上方同一塊；顏色用這一頁自己的 token） */
+.coffee { box-sizing: border-box; width: calc(100% - 32px); max-width: 640px; margin: 48px auto 8px; padding: 24px 20px; border: 1px solid var(--hairline, rgba(0, 0, 0, .12)); border-radius: 16px; text-align: center; }
+.coffee h2 { margin: 0 0 8px; font-size: 18px; line-height: 1.4; }
+.coffee p { margin: 0 0 16px; font-size: 15px; line-height: 1.7; }
+.coffee-links { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 12px; }
+.coffee-btn { display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 999px; background: var(--primary, #1F2937); color: var(--on-primary, #FFFFFF); font-size: 15px; font-weight: 600; text-decoration: none; }
+.coffee-more { display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; color: inherit; font-size: 14px; }
+.coffee small { display: block; margin-top: 8px; font-size: 12.5px; opacity: .75; }
 </style>
 </head>
 <body>
@@ -281,6 +289,12 @@ code { padding: 1px 6px; border-radius: 4px; background: var(--surface-2); font:
   </section>
 </main>
 
+<section class="coffee" aria-labelledby="coffee-title">
+  <h2 id="coffee-title">請我喝杯咖啡</h2>
+  <p>如果我的 App 幫你省了一點麻煩，歡迎請我喝杯咖啡。喝不喝都沒關係，App 照樣免費。</p>
+  <div class="coffee-links"><a class="coffee-btn" href="https://p.ecpay.com.tw/3D733C6" target="_blank" rel="noopener noreferrer">請我喝一杯 ☕ NT$49</a><a class="coffee-more" href="https://p.ecpay.com.tw/083CF65" target="_blank" rel="noopener noreferrer">想多請幾杯</a></div>
+  <small>由綠界科技 ECPay 收款，信用卡付款。</small>
+</section>
 <footer class="wrap foot">
   <p>隱私：不收集任何資料、沒有使用統計；設定與紀錄只存在你的電腦。</p>
   <p>角色、動作示範與說明來自 <a href="https://github.com/pcybriwsky/noodle" target="_blank" rel="noopener noreferrer">Noodle</a>（© 2026 <a href="https://www.instagram.com/_re_pete/" target="_blank" rel="noopener noreferrer">Pete Cybriwsky<span class="sr-only">（Instagram，另開分頁）</span></a>，MIT 授權）。拉麵是非官方的 Windows 改寫版，與原作者無關，也未經原作者背書。</p>

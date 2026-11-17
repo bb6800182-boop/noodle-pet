@@ -138,6 +138,14 @@ code { padding: 1px 6px; border-radius: 4px; background: var(--surface-2); font:
   .figs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+/* 請我喝杯咖啡（每個介紹頁頁尾上方同一塊；顏色用這一頁自己的 token） */
+.coffee { box-sizing: border-box; width: calc(100% - 32px); max-width: 640px; margin: 48px auto 8px; padding: 24px 20px; border: 1px solid var(--hairline, rgba(0, 0, 0, .12)); border-radius: 16px; text-align: center; }
+.coffee h2 { margin: 0 0 8px; font-size: 18px; line-height: 1.4; }
+.coffee p { margin: 0 0 16px; font-size: 15px; line-height: 1.7; }
+.coffee-links { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 12px; }
+.coffee-btn { display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 999px; background: var(--primary, #1F2937); color: var(--on-primary, #FFFFFF); font-size: 15px; font-weight: 600; text-decoration: none; }
+.coffee-more { display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; color: inherit; font-size: 14px; }
+.coffee small { display: block; margin-top: 8px; font-size: 12.5px; opacity: .75; }
 </style>
 </head>
 <body>
@@ -272,6 +280,12 @@ code { padding: 1px 6px; border-radius: 4px; background: var(--surface-2); font:
   </section>
 </main>
 
+<section class="coffee" aria-labelledby="coffee-title">
+  <h2 id="coffee-title">Buy me a coffee</h2>
+  <p>If my apps saved you some hassle, you're welcome to buy me a coffee. No pressure; the apps stay free either way.</p>
+  <div class="coffee-links"><a class="coffee-btn" href="https://p.ecpay.com.tw/3D733C6" target="_blank" rel="noopener noreferrer">Buy me a coffee ☕ NT$49</a><a class="coffee-more" href="https://p.ecpay.com.tw/083CF65" target="_blank" rel="noopener noreferrer">Or a few more</a></div>
+  <small>Paid by credit card through ECPay, in New Taiwan dollars. Cards issued outside Taiwan may not be accepted.</small>
+</section>
 <footer class="wrap foot">
   <p>Privacy: no data collected, no analytics. Settings and logs stay on your computer.</p>
   <p>Characters, exercise demos and instructions come from <a href="https://github.com/pcybriwsky/noodle" target="_blank" rel="noopener noreferrer">Noodle</a> (© 2026 <a href="https://www.instagram.com/_re_pete/" target="_blank" rel="noopener noreferrer">Pete Cybriwsky<span class="sr-only"> (Instagram, opens in a new tab)</span></a>, MIT License). Lamian is an unofficial Windows port, not affiliated with or endorsed by the original author.</p>
